@@ -145,7 +145,9 @@ window.__ModuleLoader__.load({
         templateDelegatedOnly: "仅子 Agent",
         templatePresetsOnly: "限定 Preset",
         templateNeedsPwsh: "需 PowerShell 能力",
-        templatePwshUnknown: "需 PowerShell（当前未证实）",
+        templatePwshUnknown: "需 PowerShell（条件不会匹配）",
+        templatePwshUnknownHint:
+          "宿主无法证明 Agent 的实际 shell 方言；带此条件的模板导入后不会自动匹配。可在 Section 编辑区清除 PowerShell 条件，或等待宿主提供方言能力。",
         templateScopeWarning:
           "部分模板推荐用于模型层；当前范围更宽，加入后会影响更多请求。",
         templateAdd: "添加",
@@ -237,7 +239,9 @@ window.__ModuleLoader__.load({
         templateDelegatedOnly: "Delegated only",
         templatePresetsOnly: "Preset-limited",
         templateNeedsPwsh: "Requires PowerShell",
-        templatePwshUnknown: "Requires PowerShell (unverified)",
+        templatePwshUnknown: "Requires PowerShell (will not match)",
+        templatePwshUnknownHint:
+          "The host cannot prove the agent's actual shell dialect, so this conditional template will not match after it is added. Clear the PowerShell condition in the Section editor, or wait for host dialect support.",
         templateScopeWarning:
           "Some templates are recommended for the model layer; this scope is broader, so they affect more requests.",
         templateAdd: "Add",
@@ -618,6 +622,7 @@ window.__ModuleLoader__.load({
           tags.push([
             powershellUnknown ? "warning" : "outline",
             t(powershellUnknown ? "templatePwshUnknown" : "templateNeedsPwsh"),
+            powershellUnknown ? t("templatePwshUnknownHint") : undefined,
           ]);
         return tags;
       };
@@ -1319,13 +1324,14 @@ window.__ModuleLoader__.load({
                           { className: "pl-tag", "data-tone": "outline" },
                           `v${previewTemplate.version}`,
                         ),
-                      templateTags(previewTemplate).map(([tone, label]) =>
+                      templateTags(previewTemplate).map(([tone, label, title]) =>
                         h(
                           "span",
                           {
                             key: `${tone}:${label}`,
                             className: "pl-tag",
                             "data-tone": tone,
+                            title,
                           },
                           label,
                         ),
@@ -1413,13 +1419,14 @@ window.__ModuleLoader__.load({
                                   h(
                                     "div",
                                     { className: "pl-templateTags" },
-                                    tags.map(([tone, label]) =>
+                                    tags.map(([tone, label, title]) =>
                                       h(
                                         "span",
                                         {
                                           key: `${tone}:${label}`,
                                           className: "pl-tag",
                                           "data-tone": tone,
+                                          title,
                                         },
                                         label,
                                       ),

@@ -335,6 +335,7 @@ test('the picker warns when model-layer templates are added at a broader scope',
   assert.equal(globalTag.props['data-tone'], 'outline')
   const pwshTag = find(view, (node) => node.children?.includes?.('templatePwshUnknown'))[0]
   assert.equal(pwshTag.props['data-tone'], 'warning')
+  assert.equal(pwshTag.props.title, 'templatePwshUnknownHint')
   assert.ok(find(view, (node) => node.children?.includes?.('templateMainOnly')).length)
 })
 
