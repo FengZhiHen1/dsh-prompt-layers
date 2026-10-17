@@ -8,6 +8,7 @@ const code = await readFile(new URL('../client.js', import.meta.url), 'utf8')
 async function mount(envelope, { fail = false, saveError = false, lang = 'zh' } = {}) {
   let plugin
   let component
+  let registration
   const states = []
   const effects = []
   const calls = []
@@ -37,7 +38,7 @@ async function mount(envelope, { fail = false, saveError = false, lang = 'zh' } 
     getLocale: () => ({ active: lang, locales: [], revision: 0 }),
     subscribe: () => () => undefined,
   },
-    slots: { inject: (_name, callback) => callback(), register: (_options, view) => { component = view; return () => undefined } } })
+    slots: { inject: (_name, callback) => callback(), register: (options, view) => { registration = options; component = view; return () => undefined } } })
   const t = key => key
   function render() {
     cursor = 0
@@ -54,7 +55,7 @@ async function mount(envelope, { fail = false, saveError = false, lang = 'zh' } 
   const pending = effects.splice(0)
   for (const effect of pending) effect()
   await new Promise(resolve => setImmediate(resolve))
-  return { render, calls }
+  return { render, calls, registration, component }
 }
 
 function find(node, predicate, matches = []) {
@@ -101,6 +102,23 @@ const templates = [
   },
 ]
 const withTemplates = { ...empty, templates }
+const savedLocal = {
+  ...withTemplates,
+  sections: [{
+    id: 'custom:evidence-discipline',
+    kind: 'custom',
+    local: true,
+    source: 'global',
+    content: 'Existing body',
+    enabled: true,
+    interpolate: false,
+    position: 'default',
+    when: {},
+    chain: [{ scope: 'global', file: 'global.yaml' }],
+  }],
+}
+const iconButtons = (view) => find(view, (node) => node.type === 'button'
+  && String(node.props?.className).includes('pl-iconButton'))
 const templateTrigger = (view) => find(view, (node) => node.type === 'button'
   && String(node.props?.className).includes('pl-button') && node.children.includes('templates'))[0]
 const dialog = (view) => find(view, (node) => node.type === 'dialog')[0]
@@ -181,6 +199,51 @@ test('an unavailable configuration renders the settings-form notice instead of f
   assert.ok(notice)
   assert.equal(notice.children[0], 'unavailable')
   assert.equal(find(view, byClass('pl-form')).length, 0)
+})
+
+test('the Section workspace is a row config page with a summary', async () => {
+  const ui = await mount(empty)
+  assert.equal(ui.registration.name, 'plugins.row.config')
+  assert.equal(ui.registration.key, 'dsh-prompt-layers#prompt-layers')
+  assert.equal(ui.registration.locale, 'dshPromptLayers')
+  assert.equal(ui.component({ view: 'summary', t: key => key }), 'summary')
+})
+
+test('saved Sections use delete copy while new rows use discard copy', async () => {
+  const ui = await mount(savedLocal)
+  let view = ui.render()
+  const savedIcon = iconButtons(view)[0]
+  assert.ok(savedIcon)
+  assert.equal(savedIcon.props.title, 'deleteLocal')
+  assert.equal(savedIcon.props['aria-label'], 'deleteLocal: evidence-discipline')
+  assert.equal(find(view, (node) => node.children?.includes?.('delete')).length, 0, 'no draft wording remains')
+
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  templateAddButton(view).props.onClick()
+  view = ui.render()
+  const discard = iconButtons(view).find((node) => String(node.props?.['aria-label']).startsWith('discardNew'))
+  assert.ok(discard)
+  assert.equal(discard.props.title, 'discardNew')
+  assert.equal(discard.props['aria-label'], 'discardNew: flash-execution-core')
+  assert.equal(iconButtons(view).length, 2, 'one saved row plus one new row')
+})
+
+test('a local override removes the override rather than the definition', async () => {
+  const override = {
+    ...savedLocal,
+    sections: [{
+      ...savedLocal.sections[0],
+      chain: [
+        { scope: 'global', file: 'global.yaml' },
+        { scope: 'model', file: 'model.yaml' },
+      ],
+    }],
+  }
+  const ui = await mount(override)
+  const icon = iconButtons(ui.render())[0]
+  assert.equal(icon.props.title, 'remove')
+  assert.equal(icon.props['aria-label'], 'remove: evidence-discipline')
 })
 
 test('the picker reports an empty catalogue instead of disabling the trigger', async () => {
@@ -276,22 +339,7 @@ test('the picker warns when model-layer templates are added at a broader scope',
 })
 
 test('a template already present in the scope is not offered again', async () => {
-  const existing = {
-    ...withTemplates,
-    sections: [{
-      id: 'custom:evidence-discipline',
-      kind: 'custom',
-      local: true,
-      source: 'global',
-      content: 'Existing body',
-      enabled: true,
-      interpolate: false,
-      position: 'default',
-      when: {},
-      chain: [{ scope: 'global', file: 'global.yaml' }],
-    }],
-  }
-  const ui = await mount(existing)
+  const ui = await mount(savedLocal)
   let view = ui.render()
   templateTrigger(view).props.onClick()
   view = ui.render()

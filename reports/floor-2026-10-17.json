@@ -3,14 +3,15 @@
 - root: `.`
 - 扫描文件: 17（py: 0, ts: 17）
 - 交付面引用检查: git 索引可用（已跟踪 53 / 未暂存 0）
-- error: 0 / warning: 13
+- error: 0 / warning: 14
 - **verdict: PASS**
 
 ### warning
 | 规则 | 位置 | 内容 |
 |---|---|---|
-| high-complexity | client.js:6 | factory(require) {  # 逻辑行数 1495 / 逻辑最大缩进 42 列（JSX 返回块不计入） |
-| high-complexity | client.js:416 | function Panel({ t, locale }) {  # 逻辑行数 1067 / 逻辑最大缩进 42 列（JSX 返回块不计入） |
+| high-complexity | client.js:6 | factory(require) {  # 逻辑行数 1520 / 逻辑最大缩进 42 列（JSX 返回块不计入） |
+| high-complexity | client.js:443 | function Panel({ t, locale }) {  # 逻辑行数 1061 / 逻辑最大缩进 42 列（JSX 返回块不计入） |
+| high-complexity | client.js:1506 | apply(ctx) {  # 逻辑行数 18 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
 | docstring-promise | src\adapter\application.js:32 | export class PromptLayersApplication {  # 函数体有 throw 但 TSDoc 未声明 @throws |
 | high-complexity | src\adapter\application.js:364 | async importTemplates(request) {  # 逻辑行数 117 / 逻辑最大缩进 12 列（JSX 返回块不计入） |
 | docstring-promise | src\adapter\files.js:50 | export class ConfigurationFiles {  # 函数体有 throw 但 TSDoc 未声明 @throws |

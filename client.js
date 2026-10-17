@@ -45,6 +45,10 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-button{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:28px;padding:0 10px;border:.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font-family:inherit;font-size:12px;line-height:18px;cursor:pointer;transition:background var(--ds-transition-duration) var(--ds-ease-in-out)}
 .dsh-pl .pl-button:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}
 .dsh-pl .pl-button:disabled{opacity:.4;cursor:not-allowed}
+.dsh-pl .pl-iconButton{display:inline-flex;flex:none;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-tertiary);cursor:pointer}
+.dsh-pl .pl-iconButton:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}
+.dsh-pl .pl-iconButtonDanger:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover-danger);color:var(--dsw-alias-state-error-primary)}
+.dsh-pl .pl-iconButton:disabled{opacity:.4;cursor:default}
 .dsh-pl .pl-switch{display:inline-flex;align-items:flex-start;gap:10px;padding:4px 0;font-size:14px;line-height:20px;color:var(--dsw-alias-label-primary)}
 .dsh-pl .pl-switchLabel{min-width:0}
 .dsh-pl .pl-switchLabel small{display:block;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}
@@ -64,7 +68,7 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-save{appearance:none;border:1px solid transparent;border-radius:var(--dsw-radius-md);padding:5px 14px;font:inherit;font-size:13px;line-height:1.5;cursor:pointer;background:var(--dsw-alias-label-primary);color:var(--dsw-alias-bg-layer-3)}
 .dsh-pl .pl-save:disabled{opacity:.4;cursor:default}
 .dsh-pl .pl-save:focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:1px}
-.dsh-pl :is(.pl-button,.pl-rowOpen,.pl-switchControl,.pl-dialogClose,.pl-templatePreview,.pl-primary,.pl-secondary,summary):focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
+.dsh-pl :is(.pl-button,.pl-iconButton,.pl-rowOpen,.pl-switchControl,.pl-dialogClose,.pl-templatePreview,.pl-primary,.pl-secondary,summary):focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
 .dsh-pl :is(select,input,textarea):focus-visible{outline:none;border-color:var(--dsw-alias-state-business-primary)}
 .dsh-pl :is(input,textarea)[aria-invalid=true]{border-color:var(--dsw-alias-state-error-primary)}
 .dsh-pl .pl-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:16px;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
@@ -115,6 +119,7 @@ window.__ModuleLoader__.load({
 `;
     const words = {
       zh: {
+        summary: "按全局、供应商或模型范围管理提示词 Section，并从内置模板添加。",
         scope: "适用范围",
         scopeHint: "全局层对全部请求生效；供应商与模型层只覆盖更具体的范围。",
         provider: "供应商",
@@ -163,7 +168,8 @@ window.__ModuleLoader__.load({
         newSection: "新建",
         pendingRemove: "保存后移除",
         undoRemove: "撤销移除",
-        delete: "删除草稿",
+        discardNew: "放弃新增",
+        deleteLocal: "删除此 Section",
         remove: "移除当前覆盖，恢复继承",
         inherited: "继承自",
         local: "当前范围定义",
@@ -203,6 +209,8 @@ window.__ModuleLoader__.load({
         fallback: "使用原生提示词",
       },
       en: {
+        summary:
+          "Manage prompt Sections across global, provider and model scopes, with built-in templates.",
         scope: "Applies to",
         scopeHint:
           "The global layer applies to every request; provider and model layers override narrower scopes.",
@@ -254,7 +262,8 @@ window.__ModuleLoader__.load({
         newSection: "New",
         pendingRemove: "Removed on save",
         undoRemove: "Undo removal",
-        delete: "Discard draft",
+        discardNew: "Discard new Section",
+        deleteLocal: "Delete this Section",
         remove: "Remove override and inherit",
         inherited: "Inherited from",
         local: "Defined here",
@@ -402,6 +411,24 @@ window.__ModuleLoader__.load({
           stroke: "currentColor",
           strokeWidth: 1.2,
           strokeLinecap: "round",
+        }),
+      );
+    const trashIcon = () =>
+      h(
+        "svg",
+        {
+          width: 14,
+          height: 14,
+          viewBox: "0 0 16 16",
+          fill: "none",
+          "aria-hidden": "true",
+        },
+        h("path", {
+          d: "M3 4.5h10M6.2 4.5V3.2c0-.4.3-.7.7-.7h2.2c.4 0 .7.3.7.7v1.3M5.2 4.5l.5 8c0 .4.3.7.7.7h3.2c.4 0 .7-.3.7-.7l.5-8",
+          stroke: "currentColor",
+          strokeWidth: 1.2,
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
         }),
       );
     const activeLocale = (locale) => {
@@ -859,6 +886,13 @@ window.__ModuleLoader__.load({
             : entry.row.local
               ? t(entry.row.chain.length > 1 ? "overridden" : "local")
               : `${t("inherited")} ${entry.row.source.scope === "native" ? t("native") : t(entry.row.source.scope)}`;
+        const canRemove =
+          entry.isNew || (entry.row?.local === true && !removed);
+        const removeTitle = entry.isNew
+          ? t("discardNew")
+          : entry.row.chain.length > 1 || entry.row.kind === "native"
+            ? t("remove")
+            : t("deleteLocal");
         return h(
           "li",
           { key: entry.key, className: "pl-row" },
@@ -886,6 +920,19 @@ window.__ModuleLoader__.load({
               ),
             ),
             h("span", { className: "pl-rowState" }, relation),
+            canRemove &&
+              h(
+                "button",
+                {
+                  type: "button",
+                  className: "pl-iconButton pl-iconButtonDanger",
+                  title: removeTitle,
+                  "aria-label": `${removeTitle}: ${display(change?.id ?? entry.id)}`,
+                  onClick: () =>
+                    entry.isNew ? undoRemove(entry) : markRemove(entry),
+                },
+                trashIcon(),
+              ),
           ),
           expanded &&
             h(
@@ -961,26 +1008,10 @@ window.__ModuleLoader__.load({
                   t("managedHint"),
                   invalidText === "managedRequired" ? t("managedRequired") : "",
                 ),
-              h(
-                "div",
-                { className: "pl-actions" },
-                !entry.isNew &&
-                  entry.row.local &&
-                  !removed &&
-                  h(
-                    "button",
-                    {
-                      type: "button",
-                      className: "pl-button",
-                      onClick: () => markRemove(entry),
-                    },
-                    t(
-                      entry.row.chain.length > 1 || entry.row.kind === "native"
-                        ? "remove"
-                        : "delete",
-                    ),
-                  ),
-                removed &&
+              removed &&
+                h(
+                  "div",
+                  { className: "pl-actions" },
                   h(
                     "button",
                     {
@@ -990,17 +1021,7 @@ window.__ModuleLoader__.load({
                     },
                     t("undoRemove"),
                   ),
-                entry.isNew &&
-                  h(
-                    "button",
-                    {
-                      type: "button",
-                      className: "pl-button",
-                      onClick: () => undoRemove(entry),
-                    },
-                    t("delete"),
-                  ),
-              ),
+                ),
               (entry.row?.chain?.length ?? 0) > 0 &&
                 h(
                   "details",
@@ -1484,15 +1505,19 @@ window.__ModuleLoader__.load({
       inject: ["slots", "locale"],
       apply(ctx) {
         ctx.effect(() => ctx.locale.register("dshPromptLayers", words));
-        ctx.slots.inject("plugins.bundle.config", () =>
+        ctx.slots.inject("plugins.row.config", () =>
           ctx.slots.register(
             {
-              name: "plugins.bundle.config",
-              key: "dsh-prompt-layers",
+              name: "plugins.row.config",
+              key: "dsh-prompt-layers#prompt-layers",
               locale: "dshPromptLayers",
             },
             ({ view, t }) =>
-              view === "page" ? h(Panel, { t, locale: ctx.locale }) : null,
+              view === "summary"
+                ? t("summary")
+                : view === "page"
+                  ? h(Panel, { t, locale: ctx.locale })
+                  : null,
           ),
         );
       },
