@@ -6,7 +6,79 @@ window.__ModuleLoader__.load({
     const React = require("react");
     const h = React.createElement;
     const css = `
-.dsh-pl{font:inherit;font-size:13px;line-height:1.5;color:var(--dsw-alias-label-primary);min-width:0}.dsh-pl *{box-sizing:border-box}.dsh-pl section{padding:16px 0}.dsh-pl section+section,.dsh-pl article+article{border-top:.5px solid var(--dsw-alias-border-l2)}.dsh-pl h3{font-size:13px;font-weight:600;margin:0 0 10px}.dsh-pl p{margin:6px 0}.dsh-pl .muted{color:var(--dsw-alias-label-secondary);font-size:12px}.dsh-pl .hint{color:var(--dsw-alias-label-tertiary);font-size:12px}.dsh-pl .actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.dsh-pl .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px}.dsh-pl label.field{display:flex;flex-direction:column;gap:6px;padding:8px 0;font-size:13px;font-weight:500}.dsh-pl input[type=text],.dsh-pl textarea,.dsh-pl .select{border:.5px solid var(--dsw-alias-border-l4);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-3);color:inherit;font:inherit}.dsh-pl input[type=text]{height:34px;padding:0 12px;min-width:0}.dsh-pl .select{position:relative;min-width:0}.dsh-pl .select:after{content:'';position:absolute;right:13px;top:12px;width:7px;height:7px;border-bottom:1px solid currentColor;border-right:1px solid currentColor;transform:rotate(45deg);pointer-events:none}.dsh-pl select{appearance:none;width:100%;height:34px;padding:0 32px 0 12px;border:0;background:transparent;color:inherit;font:inherit}.dsh-pl textarea{width:100%;min-height:240px;padding:10px 12px;resize:vertical;font:12px/1.6 monospace}.dsh-pl button{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:28px;padding:0 10px;border:.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);color:inherit;background:transparent;font-family:inherit;font-size:12px;line-height:18px;cursor:pointer}.dsh-pl button:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}.dsh-pl button.primary{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground);border-color:transparent}.dsh-pl button.primary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}.dsh-pl button:disabled{opacity:.4;cursor:not-allowed}.dsh-pl :is(button,input,select,textarea,summary):focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px}.dsh-pl input[type=checkbox]{accent-color:var(--dsw-alias-brand-primary)}.dsh-pl article{padding:12px 0}.dsh-pl .row{display:flex;align-items:center;gap:12px}.dsh-pl .row>button{flex:1;height:auto;min-height:44px;text-align:left;justify-content:flex-start;border:0;padding:0}.dsh-pl .row strong{font-weight:500}.dsh-pl .summary{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70ch}.dsh-pl .edit{padding:12px 0 0 20px}.dsh-pl pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:360px;overflow:auto;padding:12px;background:var(--dsw-alias-bg-layer-2);font:12px/1.6 monospace}.dsh-pl summary{cursor:pointer;font-size:12px;color:var(--dsw-alias-label-secondary)}.dsh-pl [role=alert]{color:var(--dsw-alias-state-error-primary)}.dsh-pl [role=status]{font-size:12px}.dsh-pl .badge{font-size:11px;color:var(--dsw-alias-label-secondary);padding:2px 7px;border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-sm)}.dsh-pl dialog{width:min(1000px,90vw);border:.5px solid var(--dsw-alias-border-l4);border-radius:var(--dsw-radius-xl);padding:20px;background:var(--dsw-alias-bg-overlay);color:var(--dsw-alias-label-primary)}.dsh-pl dialog textarea{height:65vh}.dsh-pl .check{display:flex;align-items:flex-start;gap:8px;padding:8px 0}.dsh-pl .check span{flex:1}.dsh-pl .check small{display:block;font-weight:400}.dsh-pl .bar{justify-content:space-between}.dsh-pl .condition{padding:12px 0;border-top:.5px solid var(--dsw-alias-border-l2)}@media(max-width:520px){.dsh-pl .edit{padding-left:0}.dsh-pl .row{gap:6px}.dsh-pl .summary{max-width:40ch}}
+.dsh-pl{display:flex;flex-direction:column;gap:32px;min-width:0;color:var(--dsw-alias-label-primary);font:inherit}
+.dsh-pl *{box-sizing:border-box}
+.dsh-pl .group{display:flex;flex-direction:column;gap:12px;min-width:0}
+.dsh-pl .groupHead{display:flex;align-items:baseline;gap:10px;min-width:0}
+.dsh-pl .groupTitle{margin:0;font-size:14px;line-height:20px;font-weight:500}
+.dsh-pl .count{flex:none;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary)}
+.dsh-pl p{margin:0}
+.dsh-pl .hint{margin:0;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
+.dsh-pl .muted{margin:0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
+.dsh-pl .status{margin:0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-tertiary)}
+.dsh-pl .error{margin:0;font-size:12px;line-height:1.5;color:var(--dsw-alias-state-error-primary);overflow-wrap:anywhere}
+.dsh-pl .actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dsh-pl .bar{justify-content:space-between}
+.dsh-pl .rows{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.dsh-pl .row{padding:12px 2px;border-bottom:.5px solid var(--dsw-alias-border-l2)}
+.dsh-pl .row:last-child{border-bottom:0}
+.dsh-pl .rowLine{display:flex;align-items:center;gap:16px;min-width:0}
+.dsh-pl .rowMain{display:flex;flex:1;flex-direction:column;gap:2px;min-width:0}
+.dsh-pl .rowOpen{display:inline-flex;align-items:center;justify-content:flex-start;gap:2px;max-width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.dsh-pl .rowOpen:hover .rowId{text-decoration:underline;text-underline-offset:3px}
+.dsh-pl .rowOpen:focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
+.dsh-pl .rowId{font-size:13.5px;line-height:20px;font-weight:500;overflow-wrap:anywhere}
+.dsh-pl .rowDesc{display:-webkit-box;overflow:hidden;overflow-wrap:anywhere;font-size:13px;line-height:18px;color:var(--dsw-alias-label-tertiary);-webkit-box-orient:vertical;-webkit-line-clamp:1}
+.dsh-pl .rowState{flex:none;font-size:12.5px;line-height:18px;color:var(--dsw-alias-label-secondary);white-space:nowrap}
+.dsh-pl .chev{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform 160ms var(--ds-ease-in-out)}
+.dsh-pl .rowOpen[aria-expanded=true] .chev{transform:rotate(90deg)}
+.dsh-pl .rowBody{display:flex;flex-direction:column;gap:12px;padding:12px 0 4px 20px;min-width:0}
+.dsh-pl .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:16px;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
+.dsh-pl pre{margin:0;max-height:280px;padding:10px 12px;overflow:auto;border:.5px solid var(--dsw-alias-border-l1);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-bg-layer-1);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;color:var(--dsw-alias-label-primary);white-space:pre-wrap;overflow-wrap:anywhere}
+.dsh-pl .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:16px}
+.dsh-pl .grid .field{padding:0}
+.dsh-pl .grid .field + .field{border-top:0}
+.dsh-pl .field{display:flex;flex-direction:column;gap:6px;padding:12px 0;min-width:0;font-size:13px;font-weight:500;line-height:1.5;color:var(--dsw-alias-label-primary)}
+.dsh-pl .field + .field{border-top:.5px solid var(--dsw-alias-border-l2)}
+.dsh-pl .select{position:relative;display:block;min-width:0}
+.dsh-pl .select:after{content:'';position:absolute;right:13px;top:13px;width:6px;height:6px;border-bottom:1px solid var(--dsw-alias-label-tertiary);border-right:1px solid var(--dsw-alias-label-tertiary);transform:rotate(45deg);pointer-events:none}
+.dsh-pl input[type=text],.dsh-pl select,.dsh-pl textarea{width:100%;border:.5px solid var(--dsw-alias-border-l4);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-3);font-family:inherit;font-size:13px;line-height:1.5;font-weight:400;color:var(--dsw-alias-label-primary)}
+.dsh-pl input[type=text],.dsh-pl select{height:34px;padding:0 12px}
+.dsh-pl select{appearance:none;padding-right:32px}
+.dsh-pl input[type=text]:focus-visible,.dsh-pl select:focus-visible,.dsh-pl textarea:focus-visible{outline:none;border-color:var(--dsw-alias-state-business-primary)}
+.dsh-pl textarea{min-height:200px;padding:10px 12px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.6}
+.dsh-pl .btn{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:4px;border:none;border-radius:var(--dsw-radius-md);cursor:pointer;font-family:inherit;font-size:14px;line-height:22px;color:var(--dsw-alias-label-primary);background:transparent;padding:0 14px}
+.dsh-pl .btn:disabled{cursor:not-allowed;opacity:.4}
+.dsh-pl .btn.md{height:36px}
+.dsh-pl .btn.sm{height:28px;font-size:12px;line-height:18px;padding:0 10px;border-radius:var(--dsw-radius-sm)}
+.dsh-pl .btn.primary{background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}
+.dsh-pl .btn.primary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}
+.dsh-pl .btn.ghost:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}
+.dsh-pl .btn.ghost:active:not(:disabled){background:var(--dsw-alias-interactive-bg-active)}
+.dsh-pl .btn.outline{border:.5px solid var(--dsw-alias-border-l3)}
+.dsh-pl .btn.outline:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}
+.dsh-pl .btn .icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px}
+.dsh-pl .check{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;font-weight:400;color:var(--dsw-alias-label-primary);cursor:pointer}
+.dsh-pl .check input{flex:0 0 auto;width:16px;height:16px;margin:0;accent-color:var(--dsw-alias-brand-primary);cursor:inherit}
+.dsh-pl .check input:focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
+.dsh-pl .check:has(input:disabled){cursor:default;opacity:.5}
+.dsh-pl .check small{display:block;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}
+.dsh-pl details{display:flex;flex-direction:column;gap:10px}
+.dsh-pl summary{display:inline-flex;align-items:center;gap:4px;padding:0;font-size:13px;line-height:20px;color:var(--dsw-alias-label-secondary);cursor:pointer;list-style:none}
+.dsh-pl summary::-webkit-details-marker{display:none}
+.dsh-pl summary:before{content:'';flex:none;width:5px;height:5px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(-45deg);transition:transform 160ms var(--ds-ease-in-out)}
+.dsh-pl details[open]>summary:before{transform:rotate(45deg)}
+.dsh-pl summary:hover{color:var(--dsw-alias-label-primary)}
+.dsh-pl dialog{padding:0 0 24px;overflow:hidden;border:0;border-radius:var(--dsw-radius-panel);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);box-shadow:var(--dsw-elevation-prominent)}
+.dsh-pl dialog[open]{display:flex;flex-direction:column;gap:20px;width:min(720px,100%);max-height:min(800px,100%)}
+.dsh-pl dialog::backdrop{background:var(--dsw-alias-bg-mask-1);backdrop-filter:var(--dsw-mask-blur)}
+.dsh-pl .dialogHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:22px 14px 12px 24px}
+.dsh-pl .dialogTitle{margin:0;font-size:16px;line-height:24px;font-weight:500}
+.dsh-pl .dialogBody{display:flex;flex:1 1 auto;flex-direction:column;gap:12px;min-width:0;min-height:0;padding:0 24px;overflow:auto}
+.dsh-pl .dialogFooter{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 24px}
+.dsh-pl .close{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:none;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
+.dsh-pl .close:hover{background:var(--dsw-alias-interactive-bg-hover)}
+@media (prefers-reduced-motion:reduce){.dsh-pl .chev{transition:none}}
 `;
     const words = {
       zh: {
@@ -325,7 +397,7 @@ window.__ModuleLoader__.load({
             type: "button",
             onClick,
             disabled: busy || options.disabled,
-            className: options.primary ? "primary" : undefined,
+            className: `btn ${options.variant ?? (options.primary ? "primary" : "outline")} ${options.size ?? "md"}`,
             ...options.props,
           },
           t(key),
@@ -417,10 +489,10 @@ window.__ModuleLoader__.load({
       const editor = (row) =>
         h(
           "div",
-          { className: "edit" },
+          { className: "rowBody" },
           h(
-            "p",
-            { className: "muted" },
+            "span",
+            { className: "mono" },
             `${t("target")}: ${labelScope(edit.target)}`,
           ),
           !row.chain?.length &&
@@ -439,7 +511,7 @@ window.__ModuleLoader__.load({
           h(
             "div",
             { className: "actions" },
-            button("expand", () => dialog.current.showModal()),
+            button("expand", () => dialog.current.showModal(), { size: "sm" }),
             check(t("enabled"), edit.enabled, (value) =>
               setField("enabled", value),
             ),
@@ -506,46 +578,53 @@ window.__ModuleLoader__.load({
             button("cancel", () => setEdit(null)),
           ),
         );
+      const chevron = () =>
+        h(
+          "svg",
+          {
+            width: 14,
+            height: 14,
+            viewBox: "0 0 16 16",
+            fill: "none",
+            "aria-hidden": "true",
+            className: "chev",
+          },
+          h("path", {
+            d: "M6 12L9.29289 8.70711C9.68342 8.31658 9.68342 7.68342 9.29289 7.29289L6 4",
+            stroke: "currentColor",
+          }),
+        );
       const rowView = (row) =>
         h(
-          "article",
-          { key: row.id },
+          "li",
+          { className: "row", key: row.id },
           h(
             "div",
-            { className: "row" },
+            { className: "rowLine" },
             h(
-              "button",
-              {
-                type: "button",
-                "aria-expanded": open === row.id,
-                onClick: () => setOpen(open === row.id ? "" : row.id),
-              },
+              "div",
+              { className: "rowMain" },
+              h(
+                "button",
+                {
+                  type: "button",
+                  className: "rowOpen",
+                  "aria-expanded": open === row.id,
+                  onClick: () => setOpen(open === row.id ? "" : row.id),
+                },
+                h("span", { className: "rowId" }, row.id.replace(/^custom:/, "")),
+                chevron(),
+              ),
               h(
                 "span",
-                null,
-                h(
-                  "strong",
-                  null,
-                  `${open === row.id ? "⌄" : "›"} ${row.id.replace(/^custom:/, "")}`,
-                ),
-                h(
-                  "div",
-                  { className: "hint" },
-                  row.local
-                    ? t(row.chain.length > 1 ? "overridden" : "local")
-                    : `${t("inherited")} ${row.source.scope === "native" ? t("native") : t(row.source.scope)}`,
-                ),
-                h(
-                  "div",
-                  { className: "muted summary" },
-                  (row.content ?? "").replace(/\s+/g, " ").slice(0, 140),
-                ),
+                { className: "rowDesc" },
+                (row.content ?? "").replace(/\s+/g, " ").slice(0, 160),
               ),
             ),
             h(
               "span",
-              { className: "badge" },
-              t(row.enabled ? "enabled" : "disabled"),
+              { className: "rowState" },
+              `${row.local ? t(row.chain.length > 1 ? "overridden" : "local") : `${t("inherited")} ${row.source.scope === "native" ? t("native") : t(row.source.scope)}`} · ${t(row.enabled ? "enabled" : "disabled")}`,
             ),
           ),
           open === row.id &&
@@ -553,16 +632,21 @@ window.__ModuleLoader__.load({
               ? editor(row)
               : h(
                   "div",
-                  { className: "edit" },
+                  { className: "rowBody" },
+                  h("span", { className: "mono" }, row.id),
                   h("pre", null, row.content),
                   h(
                     "div",
                     { className: "actions" },
-                    button(row.local ? "edit" : "override", () => begin(row)),
+                    button(row.local ? "edit" : "override", () => begin(row), {
+                      size: "sm",
+                    }),
                     row.chain.length > 0 &&
                       !row.local &&
-                      button("editSource", () =>
-                        begin(row, row.chain.at(-1).target),
+                      button(
+                        "editSource",
+                        () => begin(row, row.chain.at(-1).target),
+                        { size: "sm", variant: "ghost" },
                       ),
                     row.local &&
                       button(
@@ -577,6 +661,7 @@ window.__ModuleLoader__.load({
                             kind: row.kind,
                             expectedRevision: data.revision,
                           }),
+                        { size: "sm" },
                       ),
                   ),
                   row.chain.length > 0 &&
@@ -587,10 +672,10 @@ window.__ModuleLoader__.load({
                       row.chain.map((layer) =>
                         h(
                           "div",
-                          { key: layer.path },
+                          { key: layer.path, className: "group" },
                           h(
-                            "p",
-                            { className: "muted" },
+                            "span",
+                            { className: "mono" },
                             labelScope(layer.target),
                           ),
                           h(
@@ -625,25 +710,27 @@ window.__ModuleLoader__.load({
         { className: "dsh-pl" },
         h("style", null, css),
         h(
-          "section",
-          null,
+          "div",
+          { className: "group" },
           h(
             "div",
             { className: "actions bar" },
-            h("span", { role: "status" }, t(statusKey)),
-            button("refresh", () => load(target)),
+            h("span", { className: "status", role: "status" }, t(statusKey)),
+            button("refresh", () => load(target), {
+              size: "sm",
+              variant: "ghost",
+            }),
           ),
           data?.capabilities?.modelLayers === false &&
             h("p", { className: "hint" }, t("blocked")),
           error &&
             h(
               "div",
-              { role: "alert" },
-              error,
-              " ",
-              button("retry", () => load(target)),
+              { className: "actions" },
+              h("p", { className: "error", role: "alert" }, error),
+              button("retry", () => load(target), { size: "sm" }),
             ),
-          notice && h("p", { role: "status" }, notice),
+          notice && h("p", { className: "hint", role: "status" }, notice),
           h(
             "div",
             { className: "grid" },
@@ -719,15 +806,28 @@ window.__ModuleLoader__.load({
         ),
         data &&
           h(
-            "section",
-            null,
-            h("h3", null, t("sections")),
+            "div",
+            { className: "group" },
+            h(
+              "div",
+              { className: "groupHead" },
+              h("h3", { className: "groupTitle" }, t("sections")),
+              h(
+                "span",
+                { className: "count" },
+                String(sections.filter((row) => row.kind === "custom").length),
+              ),
+            ),
             edit &&
               !sections.some((row) => row.id === edit.id) &&
               editor(newRow),
             !sections.some((row) => row.kind === "custom") &&
               h("p", { className: "muted" }, t("empty")),
-            sections.filter((row) => row.kind === "custom").map(rowView),
+            h(
+              "ul",
+              { className: "rows" },
+              sections.filter((row) => row.kind === "custom").map(rowView),
+            ),
             h(
               "details",
               null,
@@ -737,60 +837,92 @@ window.__ModuleLoader__.load({
                 `${t("native")} (${sections.filter((row) => row.kind === "native").length})`,
               ),
               h("p", { className: "hint" }, t("nativeHint")),
-              sections.filter((row) => row.kind === "native").map(rowView),
+              h(
+                "ul",
+                { className: "rows" },
+                sections.filter((row) => row.kind === "native").map(rowView),
+              ),
             ),
           ),
         showTemplates &&
           h(
-            "section",
-            null,
-            h("h3", null, t("templates")),
+            "div",
+            { className: "group" },
             h(
-              "p",
-              { className: "muted" },
-              `${t("target")}: ${labelScope(target)}`,
+              "div",
+              { className: "groupHead" },
+              h("h3", { className: "groupTitle" }, t("templates")),
+              h("span", { className: "count" }, labelScope(target)),
             ),
-            (data?.templates ?? []).map((template) =>
-              h(
-                "article",
-                { key: template.id },
-                check(template.title, chosen.includes(template.id), (checked) =>
-                  setChosen((current) =>
-                    checked
-                      ? [...current, template.id]
-                      : current.filter((id) => id !== template.id),
-                  ),
-                ),
-                h("p", { className: "muted" }, template.description),
+            h(
+              "ul",
+              { className: "rows" },
+              (data?.templates ?? []).map((template) =>
                 h(
-                  "details",
-                  null,
-                  h("summary", null, t("content")),
-                  h("pre", null, template.content),
+                  "li",
+                  { className: "row", key: template.id },
+                  h(
+                    "div",
+                    { className: "rowLine" },
+                    h(
+                      "div",
+                      { className: "rowMain" },
+                      h(
+                        "label",
+                        { className: "check" },
+                        h("input", {
+                          type: "checkbox",
+                          checked: chosen.includes(template.id),
+                          onChange: (event) =>
+                            setChosen((current) =>
+                              event.target.checked
+                                ? [...current, template.id]
+                                : current.filter((id) => id !== template.id),
+                            ),
+                        }),
+                        h(
+                          "span",
+                          null,
+                          template.title,
+                          h("small", null, template.description),
+                        ),
+                      ),
+                      h(
+                        "details",
+                        null,
+                        h("summary", null, t("content")),
+                        h("pre", null, template.content),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-            button(
-              "import",
-              () =>
-                perform(
-                  {
-                    action: "import",
-                    templateIds: chosen,
-                    targets: [target],
-                    expectedRevision: data.revision,
-                  },
-                  () => {
-                    setChosen([]);
-                    setShowTemplates(false);
-                  },
-                ),
-              { primary: true, disabled: !chosen.length },
+            h(
+              "div",
+              { className: "actions" },
+              button(
+                "import",
+                () =>
+                  perform(
+                    {
+                      action: "import",
+                      templateIds: chosen,
+                      targets: [target],
+                      expectedRevision: data.revision,
+                    },
+                    () => {
+                      setChosen([]);
+                      setShowTemplates(false);
+                    },
+                  ),
+                { primary: true, disabled: !chosen.length },
+              ),
             ),
           ),
         h(
-          "section",
-          null,
+          "div",
+          { className: "group" },
           h(
             "details",
             null,
@@ -847,8 +979,8 @@ window.__ModuleLoader__.load({
           ),
         ),
         h(
-          "section",
-          null,
+          "div",
+          { className: "group" },
           h(
             "details",
             null,
@@ -872,15 +1004,46 @@ window.__ModuleLoader__.load({
           "dialog",
           { ref: dialog, onCancel: () => undefined },
           h(
-            "label",
-            { className: "field" },
-            t("content"),
+            "div",
+            { className: "dialogHeader" },
+            h("h2", { className: "dialogTitle" }, t("content")),
+            h(
+              "button",
+              {
+                type: "button",
+                className: "close",
+                "aria-label": t("close"),
+                onClick: () => dialog.current.close(),
+              },
+              h(
+                "svg",
+                {
+                  width: 14,
+                  height: 14,
+                  viewBox: "0 0 16 16",
+                  fill: "none",
+                  "aria-hidden": "true",
+                },
+                h("path", { d: "M2.5 2.5L13.5 13.5", stroke: "currentColor" }),
+                h("path", { d: "M13.5 2.5L2.5 13.5", stroke: "currentColor" }),
+              ),
+            ),
+          ),
+          h(
+            "div",
+            { className: "dialogBody" },
             h("textarea", {
               value: edit?.content ?? "",
               onChange: (event) => setField("content", event.target.value),
+              spellCheck: false,
             }),
           ),
-          button("close", () => dialog.current.close()),
+          h(
+            "div",
+            { className: "dialogFooter" },
+            button("cancel", () => dialog.current.close()),
+            button("close", () => dialog.current.close(), { primary: true }),
+          ),
         ),
       );
     }
