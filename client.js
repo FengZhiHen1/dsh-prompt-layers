@@ -114,6 +114,16 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-primary:disabled,.dsh-pl .pl-secondary:disabled{opacity:.4;cursor:not-allowed}
 .dsh-pl .pl-previewMeta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0;margin:0 0 8px}
 .dsh-pl .pl-previewBody{margin:0;padding:12px;max-height:none;overflow:visible;border:.5px solid var(--dsw-alias-border-l4);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}
+.dsh-pl .pl-diffBlock{display:flex;flex-direction:column;gap:6px;margin:12px 0}
+.dsh-pl .pl-inlineWarn{margin:0;font-size:12px;line-height:1.5;color:var(--dsw-alias-state-warn-primary);overflow-wrap:anywhere}
+.dsh-pl .pl-inlineNote{margin:0;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
+.dsh-pl .pl-diff{margin:0;padding:8px 10px;max-height:280px;overflow:auto;border:.5px solid var(--dsw-alias-border-l4);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-3);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.5;color:var(--dsw-alias-label-secondary);white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}
+.dsh-pl .pl-diffLine{display:block;padding:0 4px;border-radius:2px}
+.dsh-pl .pl-diffLine[data-kind=add]{background:color-mix(in srgb,var(--dsw-alias-state-success-primary) 12%,transparent);color:var(--dsw-alias-state-success-primary)}
+.dsh-pl .pl-diffLine[data-kind=del]{background:color-mix(in srgb,var(--dsw-alias-state-error-primary) 12%,transparent);color:var(--dsw-alias-state-error-primary)}
+.dsh-pl .pl-diffLine[data-kind=same]{color:var(--dsw-alias-label-secondary)}
+.dsh-pl .pl-replaceConfirm{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:.5px solid var(--dsw-alias-state-warn-primary);border-radius:var(--dsw-radius-md);background:color-mix(in srgb,var(--dsw-alias-state-warn-primary) 6%,transparent)}
+.dsh-pl .pl-replaceActions{display:flex;flex-wrap:wrap;gap:8px}
 @keyframes plFade{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.dsh-pl .pl-chev,.dsh-pl .pl-dialogLayer[open],.dsh-pl .pl-dialogLayer::backdrop,.dsh-pl .pl-dialog{transition:none;animation:none}}
 `;
@@ -138,6 +148,8 @@ window.__ModuleLoader__.load({
         templateScopeLine: "加入范围：{scope}",
         templateAddedNotice: "已加入草稿：{title}；保存后生效。",
         templateAdded: "已添加",
+        templateModified: "已添加 · 与当前模板不同",
+        templateModifiedHint: "当前正文与当前模板不同；模板不会自动更新。",
         templateInherited: "继承层已有",
         templateRecommendedGlobal: "推荐全局",
         templateRecommendedModel: "推荐模型层",
@@ -155,6 +167,16 @@ window.__ModuleLoader__.load({
         templatePreviewTitle: "模板正文",
         templatePreviewHint:
           "只读预览；正文为批准的原始 Markdown，不随界面语言翻译。加入草稿后可在 Section 编辑区修改。",
+        templateDiffTitle: "当前正文与模板正文不同",
+        templateDiffHint:
+          "当前 → 模板；- 仅当前有，+ 仅模板有。替换只改正文，不改 ID、条件、启停和位置。",
+        templateDiffTooLarge:
+          "正文较长，未生成逐行差异；可查看模板正文，或直接替换。",
+        templateReplace: "用模板正文替换当前正文",
+        templateReplaceConfirm: "确认替换当前正文？只改草稿，保存后生效。",
+        templateReplaceConfirmAction: "确认替换",
+        templateReplaceCancel: "取消",
+        templateReplacedNotice: "已用模板正文替换当前草稿；保存后生效。",
         templateBack: "返回列表",
         templateClose: "关闭",
         templateDone: "完成",
@@ -232,6 +254,9 @@ window.__ModuleLoader__.load({
         templateScopeLine: "Target scope: {scope}",
         templateAddedNotice: "Added to the draft: {title}; save to apply.",
         templateAdded: "Added",
+        templateModified: "Added · differs from current template",
+        templateModifiedHint:
+          "The current body differs from the current template; templates do not auto-update.",
         templateInherited: "Already inherited",
         templateRecommendedGlobal: "Recommended: global",
         templateRecommendedModel: "Recommended: model layer",
@@ -249,6 +274,18 @@ window.__ModuleLoader__.load({
         templatePreviewTitle: "Template body",
         templatePreviewHint:
           "Read-only preview; the body is the approved Markdown original and is not translated with the UI. Edit it in the Section editor after adding.",
+        templateDiffTitle: "Current body differs from the template body",
+        templateDiffHint:
+          "Current → template; - only in current, + only in template. Replacing changes only the body, not the ID, conditions, enabled state, or position.",
+        templateDiffTooLarge:
+          "The body is too long for a line diff here; view the template body or replace directly.",
+        templateReplace: "Replace current body with template body",
+        templateReplaceConfirm:
+          "Replace the current body? This edits the draft only; save to apply.",
+        templateReplaceConfirmAction: "Replace body",
+        templateReplaceCancel: "Cancel",
+        templateReplacedNotice:
+          "Current draft body replaced with the template body; save to apply.",
         templateBack: "Back to list",
         templateClose: "Close",
         templateDone: "Done",
@@ -444,6 +481,43 @@ window.__ModuleLoader__.load({
     };
     const interpolate = (text, name, value) =>
       text.split(`{${name}}`).join(value);
+    const normalizeBody = (text) =>
+      String(text ?? "")
+        .replace(/\r\n?/g, "\n")
+        .replace(/\s+$/, "");
+    const lineDiff = (before, after) => {
+      const a = before ? before.split("\n") : [""];
+      const b = after ? after.split("\n") : [""];
+      if (a.length * b.length > 400000) return null;
+      const dp = Array.from({ length: a.length + 1 }, () =>
+        new Uint32Array(b.length + 1),
+      );
+      for (let i = a.length - 1; i >= 0; i--)
+        for (let j = b.length - 1; j >= 0; j--)
+          dp[i][j] =
+            a[i] === b[j]
+              ? dp[i + 1][j + 1] + 1
+              : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      const out = [];
+      let i = 0;
+      let j = 0;
+      while (i < a.length && j < b.length) {
+        if (a[i] === b[j]) {
+          out.push({ kind: "same", text: a[i] });
+          i += 1;
+          j += 1;
+        } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+          out.push({ kind: "del", text: a[i] });
+          i += 1;
+        } else {
+          out.push({ kind: "add", text: b[j] });
+          j += 1;
+        }
+      }
+      while (i < a.length) out.push({ kind: "del", text: a[i++] });
+      while (j < b.length) out.push({ kind: "add", text: b[j++] });
+      return out;
+    };
     function Panel({ t, locale }) {
       const [phase, setPhase] = React.useState("loading");
       const [data, setData] = React.useState(null);
@@ -452,6 +526,8 @@ window.__ModuleLoader__.load({
       const [open, setOpen] = React.useState("");
       const [templatesOpen, setTemplatesOpen] = React.useState(false);
       const [previewId, setPreviewId] = React.useState("");
+      const [replaceConfirm, setReplaceConfirm] = React.useState(false);
+      const [replacedTemplateId, setReplacedTemplateId] = React.useState("");
       const [addedTemplateId, setAddedTemplateId] = React.useState("");
       const [lang, setLang] = React.useState(() => activeLocale(locale));
       const [saving, setSaving] = React.useState(false);
@@ -565,6 +641,8 @@ window.__ModuleLoader__.load({
         setOpen("");
         setTemplatesOpen(false);
         setPreviewId("");
+        setReplaceConfirm(false);
+        setReplacedTemplateId("");
         setAddedTemplateId("");
         setFailed(false);
         setTarget(next);
@@ -637,6 +715,12 @@ window.__ModuleLoader__.load({
           isNew: entry.isNew,
           fields: baseOf(entry),
         };
+      const sectionFields = (entry) =>
+        staged[entry.key]?.fields ?? baseOf(entry);
+      const templateMatchesEntry = (entry, template) =>
+        Boolean(entry) &&
+        normalizeBody(sectionFields(entry)?.content) ===
+          normalizeBody(template.content);
       const write = (entry, patch) => {
         setFailed(false);
         setStaged((current) => {
@@ -729,12 +813,16 @@ window.__ModuleLoader__.load({
       const openTemplates = () => {
         if (!usable || saving) return;
         setPreviewId("");
+        setReplaceConfirm(false);
+        setReplacedTemplateId("");
         setTemplatesOpen(true);
       };
       const closeTemplates = () => {
         restoreFocusRef.current = true;
         setTemplatesOpen(false);
         setPreviewId("");
+        setReplaceConfirm(false);
+        setReplacedTemplateId("");
       };
       closeTemplatesRef.current = closeTemplates;
       const addedTemplate = (usable?.templates ?? []).find(
@@ -752,6 +840,45 @@ window.__ModuleLoader__.load({
         (usable?.templates ?? []).find(
           (template) => template.id === previewId,
         ) ?? null;
+      const previewEntry = previewTemplate
+        ? templateEntryOf(previewTemplate)
+        : null;
+      const previewEditable = Boolean(
+        previewEntry &&
+          !staged[previewEntry.key]?.remove &&
+          (previewEntry.isNew || previewEntry.row?.local),
+      );
+      const previewBody = previewEditable
+        ? (sectionFields(previewEntry)?.content ?? "")
+        : "";
+      const previewChanged =
+        previewEditable &&
+        normalizeBody(previewBody) !==
+          normalizeBody(previewTemplate.content);
+      const previewDiff = previewChanged
+        ? lineDiff(
+            normalizeBody(previewBody),
+            normalizeBody(previewTemplate.content),
+          )
+        : [];
+      const replacedNotice =
+        previewTemplate !== null && replacedTemplateId === previewTemplate.id;
+      const replaceCurrentBody = () => {
+        if (!previewTemplate || !previewEditable) return;
+        setStaged((current) => {
+          const base = current[previewEntry.key] ?? entryState(previewEntry);
+          return {
+            ...current,
+            [previewEntry.key]: {
+              ...base,
+              fields: { ...base.fields, content: previewTemplate.content },
+            },
+          };
+        });
+        setReplaceConfirm(false);
+        setReplacedTemplateId(previewTemplate.id);
+        setFailed(false);
+      };
       const changed = Object.entries(staged).filter(([, change]) => {
         if (change.remove || change.isNew) return true;
         const row = sections.find((item) => item.id === change.id);
@@ -1338,6 +1465,89 @@ window.__ModuleLoader__.load({
                       ),
                     ),
                     h("p", { className: "pl-hint" }, t("templatePreviewHint")),
+                    previewChanged &&
+                      h(
+                        "div",
+                        { className: "pl-diffBlock" },
+                        h(
+                          "p",
+                          { className: "pl-inlineWarn" },
+                          t("templateDiffTitle"),
+                        ),
+                        h("p", { className: "pl-hint" }, t("templateDiffHint")),
+                        previewDiff === null
+                          ? h(
+                              "p",
+                              { className: "pl-hint" },
+                              t("templateDiffTooLarge"),
+                            )
+                          : h(
+                              "pre",
+                              { className: "pl-diff" },
+                              previewDiff.map((line, index) =>
+                                h(
+                                  "span",
+                                  {
+                                    key: index,
+                                    className: "pl-diffLine",
+                                    "data-kind": line.kind,
+                                  },
+                                  `${line.kind === "add" ? "+" : line.kind === "del" ? "-" : " "} ${line.text}`,
+                                ),
+                              ),
+                            ),
+                        replaceConfirm
+                          ? h(
+                              "div",
+                              { className: "pl-replaceConfirm" },
+                              h(
+                                "p",
+                                { className: "pl-inlineWarn" },
+                                t("templateReplaceConfirm"),
+                              ),
+                              h(
+                                "div",
+                                { className: "pl-replaceActions" },
+                                h(
+                                  "button",
+                                  {
+                                    type: "button",
+                                    className: "pl-button",
+                                    onClick: () => setReplaceConfirm(false),
+                                  },
+                                  t("templateReplaceCancel"),
+                                ),
+                                h(
+                                  "button",
+                                  {
+                                    type: "button",
+                                    className: "pl-button",
+                                    onClick: replaceCurrentBody,
+                                  },
+                                  t("templateReplaceConfirmAction"),
+                                ),
+                              ),
+                            )
+                          : h(
+                              "div",
+                              { className: "pl-replaceActions" },
+                              h(
+                                "button",
+                                {
+                                  type: "button",
+                                  className: "pl-button",
+                                  onClick: () => setReplaceConfirm(true),
+                                },
+                                t("templateReplace"),
+                              ),
+                            ),
+                      ),
+                    replacedNotice &&
+                      h(
+                        "p",
+                        { className: "pl-inlineNote", role: "status" },
+                        t("templateReplacedNotice"),
+                      ),
                     h(
                       "pre",
                       { className: "pl-previewBody" },
@@ -1394,9 +1604,20 @@ window.__ModuleLoader__.load({
                             const entry = templateEntryOf(template);
                             const title = templateTitleOf(template);
                             const tags = templateTags(template);
+                            const local = Boolean(
+                              entry && (entry.isNew || entry.row?.local),
+                            );
+                            const modified =
+                              local && !templateMatchesEntry(entry, template);
                             const state = entry
-                              ? entry.isNew || entry.row?.local
-                                ? ["success", t("templateAdded")]
+                              ? local
+                                ? modified
+                                  ? [
+                                      "warning",
+                                      t("templateModified"),
+                                      t("templateModifiedHint"),
+                                    ]
+                                  : ["success", t("templateAdded")]
                                 : ["neutral", t("templateInherited")]
                               : null;
                             return h(
@@ -1442,6 +1663,7 @@ window.__ModuleLoader__.load({
                                       {
                                         className: "pl-tag",
                                         "data-tone": state[0],
+                                        title: state[2],
                                       },
                                       state[1],
                                     )
@@ -1462,7 +1684,11 @@ window.__ModuleLoader__.load({
                                     type: "button",
                                     className: "pl-templatePreview",
                                     "aria-label": `${t("templatePreview")}: ${title}`,
-                                    onClick: () => setPreviewId(template.id),
+                                    onClick: () => {
+                                      setPreviewId(template.id);
+                                      setReplaceConfirm(false);
+                                      setReplacedTemplateId("");
+                                    },
                                   },
                                   t("templatePreview"),
                                 ),
@@ -1489,7 +1715,11 @@ window.__ModuleLoader__.load({
                       {
                         type: "button",
                         className: "pl-secondary",
-                        onClick: () => setPreviewId(""),
+                        onClick: () => {
+                          setPreviewId("");
+                          setReplaceConfirm(false);
+                          setReplacedTemplateId("");
+                        },
                       },
                       t("templateBack"),
                     ),

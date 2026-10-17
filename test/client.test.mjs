@@ -109,7 +109,7 @@ const savedLocal = {
     kind: 'custom',
     local: true,
     source: 'global',
-    content: 'Existing body',
+    content: 'Evidence discipline body',
     enabled: true,
     interpolate: false,
     position: 'default',
@@ -227,6 +227,76 @@ test('saved Sections use delete copy while new rows use discard copy', async () 
   assert.equal(discard.props.title, 'discardNew')
   assert.equal(discard.props['aria-label'], 'discardNew: flash-execution-core')
   assert.equal(iconButtons(view).length, 2, 'one saved row plus one new row')
+})
+
+test('a body that differs from its template shows a warning, diff and explicit replace', async () => {
+  const modified = {
+    ...savedLocal,
+    sections: [{ ...savedLocal.sections[0], content: 'Existing body' }],
+  }
+  const ui = await mount(modified)
+  let view = ui.render()
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  const stateTag = find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'templateModified')[0]
+  assert.ok(stateTag)
+  assert.equal(stateTag.props['data-tone'], 'warning')
+  assert.equal(stateTag.props.title, 'templateModifiedHint')
+
+  templatePreviewButton(view).props.onClick()
+  view = ui.render()
+  const diff = find(view, byClass('pl-diff'))[0]
+  assert.ok(diff)
+  assert.ok(find(diff, (node) => node.props?.['data-kind'] === 'del'
+    && String(node.children?.[0]).includes('Existing body')).length)
+  assert.ok(find(diff, (node) => node.props?.['data-kind'] === 'add'
+    && String(node.children?.[0]).includes('Evidence discipline body')).length)
+
+  const replace = find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('templateReplace'))[0]
+  assert.ok(replace)
+  replace.props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.children?.includes?.('templateReplaceConfirm')).length)
+  const confirm = find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('templateReplaceConfirmAction'))[0]
+  assert.ok(confirm)
+  confirm.props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.children?.includes?.('templateReplacedNotice')).length)
+  assert.equal(find(view, byClass('pl-diff')).length, 0)
+  const back = find(view, (node) => node.type === 'button'
+    && String(node.props?.className).includes('pl-secondary'))[0]
+  back.props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'templateAdded').length)
+  assert.equal(find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'templateModified').length, 0)
+
+  await saveButton(view).props.onClick()
+  const commits = ui.calls.filter((call) => call.action === 'commit')
+  assert.equal(commits.length, 1)
+  assert.equal(commits[0].changes[0].fields.content, 'Evidence discipline body')
+})
+
+test('line-ending and trailing-whitespace differences do not mark a template as modified', async () => {
+  const normalized = {
+    ...savedLocal,
+    sections: [{
+      ...savedLocal.sections[0],
+      content: 'Evidence discipline body\r\n',
+    }],
+  }
+  const ui = await mount(normalized)
+  let view = ui.render()
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'templateAdded').length)
+  assert.equal(find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'templateModified').length, 0)
 })
 
 test('a local override removes the override rather than the definition', async () => {
