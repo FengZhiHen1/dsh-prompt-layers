@@ -4,7 +4,7 @@
 
 ## 先读这些（顺序固定）
 
-1. `catalog.json`：模板索引。每项含 `id`、`version`、`title`、`description`、`file`、`sectionId`、`recommendedScope`，部分含 `when`。**只按本文件取元数据，不要自己发明模板 ID 或 sectionId。**
+1. `catalog.json`：模板索引。每项含 `id`、`version`、`title`、`titleZh`、`description`、`descriptionEn`、`file`、`sectionId`、`recommendedScope`，部分含 `when`；`titleZh` / `descriptionEn` 只供 Web UI 双语显示，不参与装配。**只按本文件取元数据，不要自己发明模板 ID 或 sectionId。**
 2. 目标 DSH 环境里的 `prompt-layers.schema.json`（`$id: urn:dsh-prompt-layers:schema:v1`）：确认当前版本实际支持哪些字段。
 3. 用户已有的 `$DSH_HOME/prompt-layers/` 下 YAML 与 `content/*.md`：确认已有什么、哪些正文被用户改过。
 

@@ -36,6 +36,15 @@ test('package templates remain inert until explicit import and import uses ordin
   runtime.dispose()
 })
 
+test('shipped template display metadata is bilingual and complete', () => {
+  for (const template of templates) {
+    for (const field of ['title', 'titleZh', 'description', 'descriptionEn']) {
+      assert.equal(typeof template[field], 'string')
+      assert.ok(template[field].trim(), `${template.id}: ${field}`)
+    }
+  }
+})
+
 test('stale import and conflicting user content are rejected before changing authority files', async () => {
   const { files, application, runtime } = await fixture()
   const before = await application.view()

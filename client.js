@@ -45,9 +45,6 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-button{display:inline-flex;align-items:center;justify-content:center;gap:4px;height:28px;padding:0 10px;border:.5px solid var(--dsw-alias-border-l3);border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-primary);font-family:inherit;font-size:12px;line-height:18px;cursor:pointer;transition:background var(--ds-transition-duration) var(--ds-ease-in-out)}
 .dsh-pl .pl-button:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}
 .dsh-pl .pl-button:disabled{opacity:.4;cursor:not-allowed}
-.dsh-pl .pl-check{display:inline-flex;align-items:flex-start;gap:6px;font-size:14px;line-height:20px;color:var(--dsw-alias-label-primary);cursor:pointer}
-.dsh-pl .pl-check input{flex:0 0 auto;width:16px;height:16px;margin:2px 0 0;accent-color:var(--dsw-alias-brand-primary);cursor:inherit}
-.dsh-pl .pl-check small{display:block;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}
 .dsh-pl .pl-switch{display:inline-flex;align-items:flex-start;gap:10px;padding:4px 0;font-size:14px;line-height:20px;color:var(--dsw-alias-label-primary)}
 .dsh-pl .pl-switchLabel{min-width:0}
 .dsh-pl .pl-switchLabel small{display:block;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}
@@ -67,12 +64,54 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-save{appearance:none;border:1px solid transparent;border-radius:var(--dsw-radius-md);padding:5px 14px;font:inherit;font-size:13px;line-height:1.5;cursor:pointer;background:var(--dsw-alias-label-primary);color:var(--dsw-alias-bg-layer-3)}
 .dsh-pl .pl-save:disabled{opacity:.4;cursor:default}
 .dsh-pl .pl-save:focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:1px}
-.dsh-pl :is(.pl-button,.pl-rowOpen,.pl-switchControl,summary):focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
+.dsh-pl :is(.pl-button,.pl-rowOpen,.pl-switchControl,.pl-dialogClose,.pl-templatePreview,.pl-primary,.pl-secondary,summary):focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
 .dsh-pl :is(select,input,textarea):focus-visible{outline:none;border-color:var(--dsw-alias-state-business-primary)}
 .dsh-pl :is(input,textarea)[aria-invalid=true]{border-color:var(--dsw-alias-state-error-primary)}
 .dsh-pl .pl-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:16px;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
+.dsh-pl .pl-srOnly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .dsh-pl pre{margin:0;max-height:280px;padding:10px 12px;overflow:auto;border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-2);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;color:var(--dsw-alias-label-primary);white-space:pre-wrap;overflow-wrap:anywhere}
-@media (prefers-reduced-motion:reduce){.dsh-pl .pl-chev{transition:none}}
+.dsh-pl .pl-dialogLayer{position:fixed;inset:0;display:none;width:auto;height:auto;max-width:none;max-height:none;margin:0;padding:max(24px,var(--dsh-frame-overlay-top,24px)) 24px;border:0;background:transparent;box-shadow:none;color:var(--dsw-alias-label-primary);font:inherit}
+.dsh-pl .pl-dialogLayer[open]{display:flex;align-items:center;justify-content:center}
+.dsh-pl .pl-dialogLayer::backdrop{position:fixed;inset:var(--dsh-frame-chrome-top,0px) 0 0;background:var(--dsw-alias-bg-mask-1);backdrop-filter:var(--dsw-mask-blur);animation:plFade var(--ds-transition-duration) var(--ds-ease-in-out)}
+.dsh-pl .pl-dialogLayer:focus{outline:none}
+.dsh-pl .pl-dialog{display:flex;flex-direction:column;width:min(640px,100%);max-height:100%;min-height:0;border-radius:var(--dsw-radius-panel);background:var(--dsw-alias-bg-layer-2);box-shadow:var(--dsw-elevation-prominent);color:var(--dsw-alias-label-primary);font:inherit;overflow:hidden;--dsh-scrollbar-thumb:var(--dsw-alias-scrollbar-bg-l2);--dsh-scrollbar-thumb-hover:var(--dsw-alias-scrollbar-hover-l2);animation:plFade var(--ds-transition-duration) var(--ds-ease-in-out)}
+.dsh-pl .pl-dialogHead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:22px 14px 12px 24px}
+.dsh-pl .pl-dialogTitle{min-width:0;margin:0;font-size:16px;line-height:24px;font-weight:500;color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}
+.dsh-pl .pl-dialogClose{flex:none;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
+.dsh-pl .pl-dialogClose:hover{background:var(--dsw-alias-interactive-bg-hover)}
+.dsh-pl .pl-dialogDesc{margin:0;padding:0 24px;font-size:14px;line-height:22px;color:var(--dsw-alias-label-primary)}
+.dsh-pl .pl-dialogScope{margin:6px 0 0;padding:0 24px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
+.dsh-pl .pl-dialogNotice{margin:8px 0 0;padding:0 24px;font-size:12px;line-height:1.5;color:var(--dsw-alias-state-warn-primary);overflow-wrap:anywhere}
+.dsh-pl .pl-dialogNote{margin:8px 0 0;padding:0 24px;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
+.dsh-pl .pl-dialogBody{display:flex;flex:1 1 auto;flex-direction:column;min-width:0;min-height:0;margin-top:20px;padding:0 24px;overflow:auto}
+.dsh-pl .pl-dialogBody:focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:-2px}
+.dsh-pl .pl-templateList{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.dsh-pl .pl-templateRow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:12px;padding:12px 8px;min-width:0}
+.dsh-pl .pl-templateRow+.pl-templateRow{border-top:.5px solid var(--dsw-alias-border-l2)}
+.dsh-pl .pl-templateMain{display:flex;flex-direction:column;min-width:0}
+.dsh-pl .pl-templateTitle{font-size:14px;line-height:22px;font-weight:500;color:var(--dsw-alias-label-primary);overflow-wrap:anywhere}
+.dsh-pl .pl-templateDesc{display:-webkit-box;margin:2px 0 0;overflow:hidden;overflow-wrap:anywhere;font-size:13px;line-height:20px;color:var(--dsw-alias-label-secondary);-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.dsh-pl .pl-templateTags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.dsh-pl .pl-tag{display:inline-flex;align-items:center;border:.5px solid var(--dsw-alias-border-l4);border-radius:999px;corner-shape:round;padding:1px 8px;font-size:11px;line-height:17px;font-weight:500;white-space:nowrap;color:var(--dsw-alias-label-tertiary)}
+.dsh-pl .pl-tag[data-tone=neutral]{border-color:transparent;background:var(--dsw-alias-bg-module-platform);color:var(--dsw-alias-label-secondary)}
+.dsh-pl .pl-tag[data-tone=success]{border-color:transparent;background:color-mix(in srgb,var(--dsw-alias-state-success-primary) 10%,transparent);color:var(--dsw-alias-state-success-primary)}
+.dsh-pl .pl-tag[data-tone=warning]{border-color:transparent;background:color-mix(in srgb,var(--dsw-alias-state-warn-primary) 12%,transparent);color:var(--dsw-alias-state-warn-primary)}
+.dsh-pl .pl-templateActions{display:flex;flex:none;flex-direction:column;align-items:flex-end;gap:6px;min-width:64px}
+.dsh-pl .pl-templatePreview{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:5px 6px;border:0;border-radius:var(--dsw-radius-sm);background:none;color:var(--dsw-alias-label-tertiary);font:inherit;font-size:12px;line-height:18px;white-space:nowrap;cursor:pointer}
+.dsh-pl .pl-templatePreview:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}
+.dsh-pl .pl-templatePreview:active{background:var(--dsw-alias-interactive-bg-active)}
+.dsh-pl .pl-dialogFoot{display:flex;align-items:center;justify-content:flex-end;padding:0 24px 24px}
+.dsh-pl .pl-dialogActions{display:flex;flex:none;align-items:center;gap:8px;margin-left:auto}
+.dsh-pl .pl-primary,.dsh-pl .pl-secondary{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;height:36px;padding:0 14px;border-radius:var(--dsw-radius-md);font:inherit;font-size:14px;line-height:22px;cursor:pointer}
+.dsh-pl .pl-primary{border:0;background:var(--dsw-alias-button-primary-fill);color:var(--dsw-alias-label-primary-foreground)}
+.dsh-pl .pl-primary:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}
+.dsh-pl .pl-secondary{border:.5px solid var(--dsw-alias-border-l3);background:transparent;color:var(--dsw-alias-label-primary)}
+.dsh-pl .pl-secondary:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}
+.dsh-pl .pl-primary:disabled,.dsh-pl .pl-secondary:disabled{opacity:.4;cursor:not-allowed}
+.dsh-pl .pl-previewMeta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-width:0;margin:0 0 8px}
+.dsh-pl .pl-previewBody{margin:0;padding:12px;max-height:none;overflow:visible;border:.5px solid var(--dsw-alias-border-l4);border-radius:var(--dsw-radius-lg);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}
+@keyframes plFade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.dsh-pl .pl-chev,.dsh-pl .pl-dialogLayer[open],.dsh-pl .pl-dialogLayer::backdrop,.dsh-pl .pl-dialog{transition:none;animation:none}}
 `;
     const words = {
       zh: {
@@ -88,10 +127,32 @@ window.__ModuleLoader__.load({
         native: "原生 DSH 段",
         add: "新增 Section",
         templates: "从模板添加",
-        templatesHint: "模板以当前范围的新 Section 加入草稿，可先修改再保存。",
-        addSelected: "添加所选",
-        sectionExists: "当前范围已存在该 Section",
-        empty: "当前范围暂无自定义 Section。可新增或从模板添加。",
+        templatesHint:
+          "模板会立即作为当前范围的新 Section 加入草稿；保存后生效。",
+        empty: "当前范围暂无 Section。可新建空白 Section，或从模板添加。",
+        templateScopeLine: "加入范围：{scope}",
+        templateAddedNotice: "已加入草稿：{title}；保存后生效。",
+        templateAdded: "已添加",
+        templateInherited: "继承层已有",
+        templateRecommendedGlobal: "推荐全局",
+        templateRecommendedModel: "推荐模型层",
+        templateMainOnly: "仅主 Agent",
+        templateDelegatedOnly: "仅子 Agent",
+        templatePresetsOnly: "限定 Preset",
+        templateNeedsPwsh: "需 PowerShell 能力",
+        templatePwshUnknown: "需 PowerShell（当前未证实）",
+        templateScopeWarning:
+          "部分模板推荐用于模型层；当前范围更宽，加入后会影响更多请求。",
+        templateAdd: "添加",
+        templatePreview: "查看正文",
+        templatePreviewTitle: "模板正文",
+        templatePreviewHint:
+          "只读预览；正文为批准的原始 Markdown，不随界面语言翻译。加入草稿后可在 Section 编辑区修改。",
+        templateBack: "返回列表",
+        templateClose: "关闭",
+        templateDone: "完成",
+        templateNoTemplates: "没有可用模板。",
+        templateListLabel: "模板列表",
         chooseTarget: "请选择供应商与模型后管理该范围的 Section。",
         loading: "正在读取…",
         unavailable: "当前无法读取此插件配置。请确认插件已启用并重新打开此页。",
@@ -156,10 +217,31 @@ window.__ModuleLoader__.load({
         add: "Add Section",
         templates: "Add from template",
         templatesHint:
-          "Templates join the draft as new Sections in this scope; review them before saving.",
-        addSelected: "Add selected",
-        sectionExists: "This Section already exists in the scope",
-        empty: "No custom Sections in this scope. Add one or use a template.",
+          "Templates join the draft as new Sections in this scope immediately; save to apply.",
+        empty: "No Sections in this scope. Add a blank Section or use a template.",
+        templateScopeLine: "Target scope: {scope}",
+        templateAddedNotice: "Added to the draft: {title}; save to apply.",
+        templateAdded: "Added",
+        templateInherited: "Already inherited",
+        templateRecommendedGlobal: "Recommended: global",
+        templateRecommendedModel: "Recommended: model layer",
+        templateMainOnly: "Main Agent only",
+        templateDelegatedOnly: "Delegated only",
+        templatePresetsOnly: "Preset-limited",
+        templateNeedsPwsh: "Requires PowerShell",
+        templatePwshUnknown: "Requires PowerShell (unverified)",
+        templateScopeWarning:
+          "Some templates are recommended for the model layer; this scope is broader, so they affect more requests.",
+        templateAdd: "Add",
+        templatePreview: "View body",
+        templatePreviewTitle: "Template body",
+        templatePreviewHint:
+          "Read-only preview; the body is the approved Markdown original and is not translated with the UI. Edit it in the Section editor after adding.",
+        templateBack: "Back to list",
+        templateClose: "Close",
+        templateDone: "Done",
+        templateNoTemplates: "No templates available.",
+        templateListLabel: "Template list",
         chooseTarget:
           "Choose a provider and model to manage Sections in that scope.",
         loading: "Loading…",
@@ -305,19 +387,55 @@ window.__ModuleLoader__.load({
           stroke: "currentColor",
         }),
       );
-    function Panel({ t }) {
+    const closeIcon = () =>
+      h(
+        "svg",
+        {
+          width: 14,
+          height: 14,
+          viewBox: "0 0 16 16",
+          fill: "none",
+          "aria-hidden": "true",
+        },
+        h("path", {
+          d: "M4 4l8 8M12 4l-8 8",
+          stroke: "currentColor",
+          strokeWidth: 1.2,
+          strokeLinecap: "round",
+        }),
+      );
+    const activeLocale = (locale) => {
+      const snapshot =
+        locale && typeof locale.getLocale === "function"
+          ? locale.getLocale()
+          : null;
+      return typeof snapshot?.active === "string" ? snapshot.active : "zh";
+    };
+    const interpolate = (text, name, value) =>
+      text.split(`{${name}}`).join(value);
+    function Panel({ t, locale }) {
       const [phase, setPhase] = React.useState("loading");
       const [data, setData] = React.useState(null);
       const [target, setTarget] = React.useState({ scope: "global" });
       const [staged, setStaged] = React.useState({});
       const [open, setOpen] = React.useState("");
-      const [chosen, setChosen] = React.useState([]);
+      const [templatesOpen, setTemplatesOpen] = React.useState(false);
+      const [previewId, setPreviewId] = React.useState("");
+      const [addedTemplateId, setAddedTemplateId] = React.useState("");
+      const [lang, setLang] = React.useState(() => activeLocale(locale));
       const [saving, setSaving] = React.useState(false);
       const [failed, setFailed] = React.useState(false);
       const generation = React.useRef(0);
       const dataRef = React.useRef(null);
       const targetRef = React.useRef(target);
       const serial = React.useRef(0);
+      const dialogRef = React.useRef(null);
+      const closeTemplatesRef = React.useRef(null);
+      const templatesTriggerRef = React.useRef(null);
+      const restoreFocusRef = React.useRef(false);
+      const templatesDialogId = React.useId();
+      const templatesTitleId = React.useId();
+      const templatesDescId = React.useId();
       targetRef.current = target;
       const api = async (body) => {
         const controller = new AbortController();
@@ -358,6 +476,30 @@ window.__ModuleLoader__.load({
           generation.current++;
         };
       }, []);
+      React.useEffect(() => {
+        if (!locale || typeof locale.subscribe !== "function") return;
+        return locale.subscribe(() => setLang(activeLocale(locale)));
+      }, [locale]);
+      React.useEffect(() => {
+        const dialog = dialogRef.current;
+        if (!templatesOpen || dialog === null) return;
+        if (typeof dialog.showModal === "function" && !dialog.open)
+          dialog.showModal();
+        const cancel = (event) => {
+          event.preventDefault();
+          closeTemplatesRef.current?.();
+        };
+        dialog.addEventListener("cancel", cancel);
+        return () => {
+          dialog.removeEventListener("cancel", cancel);
+          if (dialog.open) dialog.close();
+        };
+      }, [templatesOpen]);
+      React.useEffect(() => {
+        if (templatesOpen || !restoreFocusRef.current) return;
+        restoreFocusRef.current = false;
+        templatesTriggerRef.current?.focus();
+      }, [templatesOpen]);
       const scopeLabel = (value) =>
         value.scope === "global"
           ? t("global")
@@ -390,7 +532,9 @@ window.__ModuleLoader__.load({
         if (targetKey(next) === targetKey(target)) return;
         setStaged({});
         setOpen("");
-        setChosen([]);
+        setTemplatesOpen(false);
+        setPreviewId("");
+        setAddedTemplateId("");
         setFailed(false);
         setTarget(next);
         if (isComplete(next)) load(next);
@@ -413,6 +557,43 @@ window.__ModuleLoader__.load({
             isNew: true,
           })),
       ];
+      const isChinese = String(lang).toLowerCase().startsWith("zh");
+      const templateTitleOf = (template) =>
+        (isChinese ? template.titleZh : template.title) ??
+        template.title ??
+        template.titleZh ??
+        template.sectionId;
+      const templateDescriptionOf = (template) =>
+        (isChinese ? template.description : template.descriptionEn) ??
+        template.description ??
+        template.descriptionEn ??
+        "";
+      const templateEntryOf = (template) =>
+        rows.find((entry) => entry.id === template.sectionId);
+      const powershellUnknown =
+        usable?.capabilities?.powershell !== "available";
+      const templateTags = (template) => {
+        const tags = [];
+        if (template.recommendedScope === "global")
+          tags.push(["outline", t("templateRecommendedGlobal")]);
+        if (template.recommendedScope === "model")
+          tags.push([
+            target.scope === "model" ? "outline" : "warning",
+            t("templateRecommendedModel"),
+          ]);
+        if (template.when?.agent?.role === "main")
+          tags.push(["outline", t("templateMainOnly")]);
+        if (template.when?.agent?.role === "delegated")
+          tags.push(["outline", t("templateDelegatedOnly")]);
+        if ((template.when?.agent?.presets?.length ?? 0) > 0)
+          tags.push(["outline", t("templatePresetsOnly")]);
+        if (template.when?.tools?.powershell === true)
+          tags.push([
+            powershellUnknown ? "warning" : "outline",
+            t(powershellUnknown ? "templatePwshUnknown" : "templateNeedsPwsh"),
+          ]);
+        return tags;
+      };
       const baseOf = (entry) =>
         entry.row
           ? fieldsOf(entry.row)
@@ -466,6 +647,7 @@ window.__ModuleLoader__.load({
         return `${candidate}-${index}`;
       };
       const addSection = () => {
+        if (!usable || saving) return;
         setStaged((current) => {
           const taken = new Set([
             ...sections.map((row) => row.id),
@@ -484,18 +666,18 @@ window.__ModuleLoader__.load({
         });
         setFailed(false);
       };
-      const addTemplates = () => {
+      const addTemplate = (template) => {
+        if (!usable || saving) return;
         setStaged((current) => {
-          const next = { ...current };
           const taken = new Set([
             ...sections.map((row) => row.id),
-            ...Object.values(next).map((change) => change.id),
+            ...Object.values(current).map((change) => change.id),
           ]);
-          for (const template of data?.templates ?? []) {
-            if (!chosen.includes(template.id)) continue;
-            if (taken.has(template.sectionId)) continue;
-            taken.add(template.sectionId);
-            next[`draft:${++serial.current}`] = {
+          if (taken.has(template.sectionId)) return current;
+          const key = `draft:${++serial.current}`;
+          return {
+            ...current,
+            [key]: {
               id: template.sectionId,
               kind: "custom",
               isNew: true,
@@ -506,13 +688,38 @@ window.__ModuleLoader__.load({
                 presets: (template.when?.agent?.presets ?? []).join(", "),
                 powershell: template.when?.tools?.powershell === true,
               },
-            };
-          }
-          return next;
+            },
+          };
         });
-        setChosen([]);
+        setAddedTemplateId(template.id);
         setFailed(false);
       };
+      const openTemplates = () => {
+        if (!usable || saving) return;
+        setPreviewId("");
+        setTemplatesOpen(true);
+      };
+      const closeTemplates = () => {
+        restoreFocusRef.current = true;
+        setTemplatesOpen(false);
+        setPreviewId("");
+      };
+      closeTemplatesRef.current = closeTemplates;
+      const addedTemplate = (usable?.templates ?? []).find(
+        (template) =>
+          template.id === addedTemplateId && templateEntryOf(template),
+      );
+      const addedNotice = addedTemplate
+        ? interpolate(
+            t("templateAddedNotice"),
+            "title",
+            templateTitleOf(addedTemplate),
+          )
+        : "";
+      const previewTemplate =
+        (usable?.templates ?? []).find(
+          (template) => template.id === previewId,
+        ) ?? null;
       const changed = Object.entries(staged).filter(([, change]) => {
         if (change.remove || change.isNew) return true;
         const row = sections.find((item) => item.id === change.id);
@@ -552,7 +759,7 @@ window.__ModuleLoader__.load({
           setData(result);
           setStaged({});
           setOpen("");
-          setChosen([]);
+          setAddedTemplateId("");
           setFailed(false);
         } catch (_failure) {
           setFailed(true);
@@ -961,67 +1168,30 @@ window.__ModuleLoader__.load({
                 {
                   type: "button",
                   className: "pl-button",
-                  disabled: !usable,
+                  disabled: !usable || saving,
                   onClick: addSection,
                 },
                 t("add"),
               ),
-            ),
-            h("p", { className: "pl-hint" }, t("sectionsHint")),
-          ),
-          h(
-            "div",
-            { className: "pl-field" },
-            h(
-              "details",
-              { className: "pl-details" },
-              h("summary", null, t("templates")),
-              h("p", { className: "pl-hint" }, t("templatesHint")),
-              (usable?.templates ?? []).map((template) => {
-                const exists = rows.some(
-                  (entry) => entry.id === template.sectionId,
-                );
-                return h(
-                  "label",
-                  { key: template.id, className: "pl-check" },
-                  h("input", {
-                    type: "checkbox",
-                    checked: chosen.includes(template.id),
-                    disabled: exists,
-                    onChange: (event) =>
-                      setChosen((current) =>
-                        event.target.checked
-                          ? [...current, template.id]
-                          : current.filter((id) => id !== template.id),
-                      ),
-                  }),
-                  h(
-                    "span",
-                    null,
-                    template.title,
-                    h(
-                      "small",
-                      null,
-                      exists ? t("sectionExists") : template.description,
-                    ),
-                  ),
-                );
-              }),
               h(
-                "div",
-                { className: "pl-actions" },
-                h(
-                  "button",
-                  {
-                    type: "button",
-                    className: "pl-button",
-                    disabled: !chosen.length,
-                    onClick: addTemplates,
-                  },
-                  t("addSelected"),
-                ),
+                "button",
+                {
+                  type: "button",
+                  className: "pl-button",
+                  ref: templatesTriggerRef,
+                  disabled: !usable || saving,
+                  "aria-haspopup": "dialog",
+                  "aria-expanded": templatesOpen,
+                  "aria-controls": templatesDialogId,
+                  onClick: openTemplates,
+                },
+                t("templates"),
               ),
             ),
+            h("p", { className: "pl-hint" }, t("sectionsHint")),
+            !templatesOpen &&
+              addedNotice &&
+              h("p", { className: "pl-hint", role: "status" }, addedNotice),
           ),
           h(
             "div",
@@ -1066,6 +1236,248 @@ window.__ModuleLoader__.load({
             ),
           ),
         ),
+        templatesOpen &&
+          usable &&
+          h(
+            "dialog",
+            {
+              id: templatesDialogId,
+              ref: dialogRef,
+              className: "pl-dialogLayer",
+              "aria-labelledby": templatesTitleId,
+              "aria-describedby": previewTemplate ? undefined : templatesDescId,
+              "aria-modal": "true",
+              onClick: (event) => {
+                if (event.target === event.currentTarget) closeTemplates();
+              },
+            },
+            h(
+              "div",
+              { className: "pl-dialog" },
+              h(
+                "div",
+                { className: "pl-dialogHead" },
+                h(
+                  "h2",
+                  { className: "pl-dialogTitle", id: templatesTitleId },
+                  previewTemplate
+                    ? `${t("templatePreviewTitle")} · ${templateTitleOf(previewTemplate)}`
+                    : t("templates"),
+                ),
+                h(
+                  "button",
+                  {
+                    type: "button",
+                    className: "pl-dialogClose",
+                    "aria-label": t("templateClose"),
+                    onClick: closeTemplates,
+                  },
+                  closeIcon(),
+                ),
+              ),
+              previewTemplate
+                ? h(
+                    "div",
+                    {
+                      className: "pl-dialogBody",
+                      role: "region",
+                      "aria-label": t("templatePreviewTitle"),
+                      tabIndex: 0,
+                    },
+                    h(
+                      "div",
+                      { className: "pl-previewMeta" },
+                      h(
+                        "span",
+                        { className: "pl-mono" },
+                        previewTemplate.sectionId,
+                      ),
+                      previewTemplate.version &&
+                        h(
+                          "span",
+                          { className: "pl-tag", "data-tone": "outline" },
+                          `v${previewTemplate.version}`,
+                        ),
+                      templateTags(previewTemplate).map(([tone, label]) =>
+                        h(
+                          "span",
+                          {
+                            key: `${tone}:${label}`,
+                            className: "pl-tag",
+                            "data-tone": tone,
+                          },
+                          label,
+                        ),
+                      ),
+                    ),
+                    h("p", { className: "pl-hint" }, t("templatePreviewHint")),
+                    h(
+                      "pre",
+                      { className: "pl-previewBody" },
+                      previewTemplate.content,
+                    ),
+                  )
+                : h(
+                    React.Fragment,
+                    null,
+                    h(
+                      "p",
+                      { className: "pl-dialogDesc", id: templatesDescId },
+                      t("templatesHint"),
+                    ),
+                    h(
+                      "p",
+                      { className: "pl-dialogScope" },
+                      interpolate(
+                        t("templateScopeLine"),
+                        "scope",
+                        scopeLabel(target),
+                      ),
+                    ),
+                    target.scope !== "global" &&
+                      usable?.capabilities?.modelLayers === false &&
+                      h("p", { className: "pl-dialogNote" }, t("blocked")),
+                    target.scope !== "model" &&
+                      (usable?.templates ?? []).some(
+                        (template) => template.recommendedScope === "model",
+                      ) &&
+                      h(
+                        "p",
+                        { className: "pl-dialogNotice", role: "note" },
+                        t("templateScopeWarning"),
+                      ),
+                    h(
+                      "div",
+                      {
+                        className: "pl-dialogBody",
+                        role: "region",
+                        "aria-label": t("templateListLabel"),
+                        tabIndex: 0,
+                      },
+                      (usable.templates ?? []).length === 0
+                        ? h(
+                            "p",
+                            { className: "pl-hint" },
+                            t("templateNoTemplates"),
+                          )
+                        : h(
+                            "ul",
+                            { className: "pl-templateList" },
+                          (usable.templates ?? []).map((template) => {
+                            const entry = templateEntryOf(template);
+                            const title = templateTitleOf(template);
+                            const tags = templateTags(template);
+                            const state = entry
+                              ? entry.isNew || entry.row?.local
+                                ? ["success", t("templateAdded")]
+                                : ["neutral", t("templateInherited")]
+                              : null;
+                            return h(
+                              "li",
+                              { key: template.id, className: "pl-templateRow" },
+                              h(
+                                "div",
+                                { className: "pl-templateMain" },
+                                h(
+                                  "div",
+                                  { className: "pl-templateTitle" },
+                                  title,
+                                ),
+                                h(
+                                  "p",
+                                  { className: "pl-templateDesc" },
+                                  templateDescriptionOf(template),
+                                ),
+                                tags.length > 0 &&
+                                  h(
+                                    "div",
+                                    { className: "pl-templateTags" },
+                                    tags.map(([tone, label]) =>
+                                      h(
+                                        "span",
+                                        {
+                                          key: `${tone}:${label}`,
+                                          className: "pl-tag",
+                                          "data-tone": tone,
+                                        },
+                                        label,
+                                      ),
+                                    ),
+                                  ),
+                              ),
+                              h(
+                                "div",
+                                { className: "pl-templateActions" },
+                                state
+                                  ? h(
+                                      "span",
+                                      {
+                                        className: "pl-tag",
+                                        "data-tone": state[0],
+                                      },
+                                      state[1],
+                                    )
+                                  : h(
+                                      "button",
+                                      {
+                                        type: "button",
+                                        className: "pl-button",
+                                        disabled: saving,
+                                        "aria-label": `${t("templateAdd")}: ${title}`,
+                                        onClick: () => addTemplate(template),
+                                      },
+                                      t("templateAdd"),
+                                    ),
+                                h(
+                                  "button",
+                                  {
+                                    type: "button",
+                                    className: "pl-templatePreview",
+                                    "aria-label": `${t("templatePreview")}: ${title}`,
+                                    onClick: () => setPreviewId(template.id),
+                                  },
+                                  t("templatePreview"),
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                    ),
+                  ),
+              h(
+                "p",
+                { className: "pl-srOnly", role: "status" },
+                addedNotice,
+              ),
+              h(
+                "div",
+                { className: "pl-dialogFoot" },
+                h(
+                  "div",
+                  { className: "pl-dialogActions" },
+                  previewTemplate &&
+                    h(
+                      "button",
+                      {
+                        type: "button",
+                        className: "pl-secondary",
+                        onClick: () => setPreviewId(""),
+                      },
+                      t("templateBack"),
+                    ),
+                  h(
+                    "button",
+                    {
+                      type: "button",
+                      className: "pl-primary",
+                      onClick: closeTemplates,
+                    },
+                    t(previewTemplate ? "templateClose" : "templateDone"),
+                  ),
+                ),
+              ),
+            ),
+          ),
       );
     }
     return {
@@ -1079,7 +1491,8 @@ window.__ModuleLoader__.load({
               key: "dsh-prompt-layers",
               locale: "dshPromptLayers",
             },
-            ({ view, t }) => (view === "page" ? h(Panel, { t }) : null),
+            ({ view, t }) =>
+              view === "page" ? h(Panel, { t, locale: ctx.locale }) : null,
           ),
         );
       },

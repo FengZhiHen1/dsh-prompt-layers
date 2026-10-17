@@ -16,14 +16,16 @@
 | `pwsh-guidance.md` | `custom:pwsh-guidance` | global | `when.tools.powershell: true` | `15_PowerShell补充提示词精简稿与对照验收.md` §2（469 词，2026-10-17） |
 | `credential-aware-automation.md` | `custom:credential-aware-automation` | global | 无（全部主/子 Agent） | `19_凭证上下文实测复盘与最小化优化方案.md` §3（2026-10-17） |
 
+`catalog.json` 的 `title` 与 `description` 保持原有含义（英文标题、中文说明）；`titleZh` 与 `descriptionEn` 是 Web UI 的双语显示元数据，只影响模板选择器与预览标题，不参与正文批准，也不改变 `*.md` 正文。正文始终是批准的英文原文，不随界面语言翻译。
+
 来源文件位于本机设计资料库 `references/dsh-prompt-layers/`（相对本仓库根为 `../../references/dsh-prompt-layers/`）。该目录被 git 忽略、不随包发布，因此**逐字正文以本目录的 `*.md` 为发行来源**，资料库只作溯源与审批记录。
 
 ## 批准状态
 
 - **正文**：七份均由用户逐字批准，本目录内容与批准原文逐字一致（2026-10-17 复核，字级比对通过）。文件本身无任何新增规则、无前后解释性文字。
-- **已实现**：YAML/Markdown 解析、global→provider→model 三层合成与锚定排序、热重载与整套回退、详情页 Section 工作区与显式导入；`prompt-layers.schema.json` 已含 `when.agent` / `when.tools`。
+- **已实现**：YAML/Markdown 解析、global→provider→model 三层合成与锚定排序、热重载与整套回退、详情页 Section 工作区、逐条模板弹层与双语显示元数据、显式导入；`prompt-layers.schema.json` 已含 `when.agent` / `when.tools`。
 - **仍未验证**：供应商／模型层受宿主时序限制只可配置与预览；PowerShell 条件的实际匹配缺少可信方言来源；目标 DSH 版本的真实请求注入与模型行为 A/B 尚未执行。
-- `catalog.json` 的 `sectionId`、`version`、`recommendedScope`、`when` 是**导入元数据与推荐值**，不属于正文批准范围；`builtin:evidence-discipline`、`builtin:anti-unwarranted-defense`、`builtin:technical-communication` 沿用设计资料库给出的发行 ID，其余按同一命名规则派生。
+- `catalog.json` 的 `sectionId`、`version`、`recommendedScope`、`when` 是**导入元数据与推荐值**，不属于正文批准范围；`titleZh`、`descriptionEn` 是**界面显示元数据**，同样不属于正文批准范围。`builtin:evidence-discipline`、`builtin:anti-unwarranted-defense`、`builtin:technical-communication` 沿用设计资料库给出的发行 ID，其余按同一命名规则派生。
 
 ## 不作为发行正文的历史材料
 

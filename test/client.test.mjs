@@ -5,7 +5,7 @@ import vm from 'node:vm'
 
 const code = await readFile(new URL('../client.js', import.meta.url), 'utf8')
 
-async function mount(envelope, { fail = false, saveError = false } = {}) {
+async function mount(envelope, { fail = false, saveError = false, lang = 'zh' } = {}) {
   let plugin
   let component
   const states = []
@@ -31,7 +31,12 @@ async function mount(envelope, { fail = false, saveError = false } = {}) {
     },
     navigator: { clipboard: { writeText: async () => undefined } }, AbortController, setTimeout, clearTimeout, console })
   vm.runInContext(code, context)
-  plugin.apply({ effect: operation => operation(), locale: { register: () => () => undefined, bind: () => key => key },
+  plugin.apply({ effect: operation => operation(), locale: {
+    register: () => () => undefined,
+    bind: () => key => key,
+    getLocale: () => ({ active: lang, locales: [], revision: 0 }),
+    subscribe: () => () => undefined,
+  },
     slots: { inject: (_name, callback) => callback(), register: (_options, view) => { component = view; return () => undefined } } })
   const t = key => key
   function render() {
@@ -67,6 +72,42 @@ const rowOpen = (view) => find(view, byClass('pl-rowOpen'))[0]
 const textarea = (view) => find(view, (node) => node.type === 'textarea')[0]
 
 const empty = { status: { phase: 'empty' }, revision: 'one', sections: [], files: [], templates: [], routes: [], identities: [], capabilities: { modelLayers: false } }
+
+const templates = [
+  {
+    id: 'builtin:evidence-discipline',
+    version: '1.0.0',
+    title: 'Evidence discipline',
+    titleZh: '证据纪律',
+    description: '证据诚实底线：中文说明。',
+    descriptionEn: 'Evidence honesty baseline: English summary.',
+    file: 'evidence-discipline.md',
+    sectionId: 'custom:evidence-discipline',
+    recommendedScope: 'global',
+    content: 'Evidence discipline body',
+  },
+  {
+    id: 'builtin:flash-execution-core',
+    version: '1.0.0',
+    title: 'Engineering execution discipline',
+    titleZh: '工程执行纪律',
+    description: '面向资源受限模型的中文说明。',
+    descriptionEn: 'Execution discipline for resource-constrained models.',
+    file: 'flash-execution-core.md',
+    sectionId: 'custom:flash-execution-core',
+    recommendedScope: 'model',
+    when: { agent: { role: 'main' }, tools: { powershell: true } },
+    content: 'Flash execution body',
+  },
+]
+const withTemplates = { ...empty, templates }
+const templateTrigger = (view) => find(view, (node) => node.type === 'button'
+  && String(node.props?.className).includes('pl-button') && node.children.includes('templates'))[0]
+const dialog = (view) => find(view, (node) => node.type === 'dialog')[0]
+const templateAddButton = (view) => find(view, (node) => node.type === 'button'
+  && String(node.props?.className).includes('pl-button') && node.children.includes('templateAdd'))[0]
+const templatePreviewButton = (view) => find(view, (node) => node.type === 'button'
+  && String(node.props?.className).includes('pl-templatePreview'))[0]
 
 test('the settings form keeps Save disabled until a staged edit is valid', async () => {
   const ui = await mount(empty)
@@ -140,6 +181,125 @@ test('an unavailable configuration renders the settings-form notice instead of f
   assert.ok(notice)
   assert.equal(notice.children[0], 'unavailable')
   assert.equal(find(view, byClass('pl-form')).length, 0)
+})
+
+test('the picker reports an empty catalogue instead of disabling the trigger', async () => {
+  const ui = await mount(empty)
+  let view = ui.render()
+  assert.equal(templateTrigger(view).props.disabled, false)
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateNoTemplates').length)
+  find(view, byClass('pl-primary'))[0].props.onClick()
+  view = ui.render()
+  assert.equal(dialog(view), undefined)
+})
+
+test('the template picker adds each row directly and keeps the picker open', async () => {
+  const ui = await mount(withTemplates)
+  let view = ui.render()
+  assert.equal(dialog(view), undefined)
+  assert.equal(templateTrigger(view).props['aria-haspopup'], 'dialog')
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  assert.ok(dialog(view), 'the trigger opens the native dialog')
+  assert.equal(dialog(view).props['aria-modal'], 'true')
+
+  const add = templateAddButton(view)
+  add.props.onClick()
+  add.props.onClick()
+  view = ui.render()
+  assert.equal(find(view, byClass('pl-rowState')).length, 1, 'a repeated add is suppressed by sectionId')
+  assert.equal(find(view, byClass('pl-rowState'))[0].children[0], 'newSection')
+  assert.ok(find(view, (node) => node.children?.includes?.('templateAdded')).length > 0)
+  assert.equal(saveButton(view).props.disabled, false, 'the added template is a staged edit')
+  assert.ok(dialog(view), 'the picker stays open for the next template')
+  const addButtons = find(view, (node) => node.type === 'button'
+    && String(node.props?.className).includes('pl-button') && node.children.includes('templateAdd'))
+  assert.equal(addButtons.length, 1, 'the added row no longer offers Add')
+
+  find(view, byClass('pl-primary'))[0].props.onClick()
+  view = ui.render()
+  assert.equal(dialog(view), undefined)
+  assert.equal(find(view, (node) => node.children?.[0] === 'templateAddedNotice').length, 1)
+})
+
+test('template titles and descriptions follow the active locale', async () => {
+  const zh = await mount(withTemplates, { lang: 'zh' })
+  let view = zh.render()
+  templateTrigger(view).props.onClick()
+  view = zh.render()
+  assert.ok(find(view, (node) => node.children?.[0] === '证据纪律').length)
+  assert.ok(find(view, (node) => node.children?.[0] === '证据诚实底线：中文说明。').length)
+
+  const en = await mount(withTemplates, { lang: 'en' })
+  view = en.render()
+  templateTrigger(view).props.onClick()
+  view = en.render()
+  assert.ok(find(view, (node) => node.children?.[0] === 'Evidence discipline').length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'Evidence honesty baseline: English summary.').length)
+})
+
+test('the template picker previews the approved body and returns to the list', async () => {
+  const ui = await mount(withTemplates)
+  let view = ui.render()
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  templatePreviewButton(view).props.onClick()
+  view = ui.render()
+  const body = find(view, (node) => node.type === 'pre' && node.props?.className === 'pl-previewBody')[0]
+  assert.ok(body)
+  assert.equal(body.children[0], 'Evidence discipline body')
+  const back = find(view, (node) => node.type === 'button' && node.props?.className === 'pl-secondary')[0]
+  assert.ok(back)
+  back.props.onClick()
+  view = ui.render()
+  assert.equal(find(view, (node) => node.type === 'pre' && node.props?.className === 'pl-previewBody').length, 0)
+  assert.ok(dialog(view), 'returning to the list keeps the picker open')
+})
+
+test('the picker warns when model-layer templates are added at a broader scope', async () => {
+  const ui = await mount(withTemplates)
+  let view = ui.render()
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  const warning = find(view, byClass('pl-dialogNotice'))[0]
+  assert.ok(warning)
+  assert.equal(warning.children[0], 'templateScopeWarning')
+  const modelTag = find(view, (node) => node.children?.includes?.('templateRecommendedModel'))[0]
+  assert.equal(modelTag.props['data-tone'], 'warning')
+  const globalTag = find(view, (node) => node.children?.includes?.('templateRecommendedGlobal'))[0]
+  assert.equal(globalTag.props['data-tone'], 'outline')
+  const pwshTag = find(view, (node) => node.children?.includes?.('templatePwshUnknown'))[0]
+  assert.equal(pwshTag.props['data-tone'], 'warning')
+  assert.ok(find(view, (node) => node.children?.includes?.('templateMainOnly')).length)
+})
+
+test('a template already present in the scope is not offered again', async () => {
+  const existing = {
+    ...withTemplates,
+    sections: [{
+      id: 'custom:evidence-discipline',
+      kind: 'custom',
+      local: true,
+      source: 'global',
+      content: 'Existing body',
+      enabled: true,
+      interpolate: false,
+      position: 'default',
+      when: {},
+      chain: [{ scope: 'global', file: 'global.yaml' }],
+    }],
+  }
+  const ui = await mount(existing)
+  let view = ui.render()
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  assert.equal(find(view, byClass('pl-templateRow')).length, 2)
+  assert.ok(find(view, (node) => node.props?.className === 'pl-tag' && node.children?.[0] === 'templateAdded').length)
+  const addButtons = find(view, (node) => node.type === 'button'
+    && String(node.props?.className).includes('pl-button') && node.children.includes('templateAdd'))
+  assert.equal(addButtons.length, 1, 'only the second template remains addable')
 })
 
 test('the client bundle stays free of Harness client packages and literal colors', () => {
