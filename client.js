@@ -13,7 +13,7 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-status{margin:0 0 12px;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}
 .dsh-pl .pl-field{display:flex;flex-direction:column;gap:6px;padding:12px 0;min-width:0}
 .dsh-pl .pl-field+.pl-field{border-top:.5px solid var(--dsw-alias-border-l2)}
-.dsh-pl .pl-labelRow{display:flex;align-items:baseline;gap:8px}
+.dsh-pl .pl-labelRow{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
 .dsh-pl .pl-label{font-size:13px;font-weight:500;line-height:1.5;color:var(--dsw-alias-label-primary)}
 .dsh-pl .pl-count{font-size:12px;line-height:1.5;color:var(--dsw-alias-label-secondary)}
 .dsh-pl .pl-hint{margin:0;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
@@ -37,6 +37,12 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-rowId{font-size:13.5px;line-height:20px;font-weight:500;overflow-wrap:anywhere}
 .dsh-pl .pl-rowDesc{display:-webkit-box;overflow:hidden;overflow-wrap:anywhere;font-size:13px;line-height:18px;color:var(--dsw-alias-label-tertiary);-webkit-box-orient:vertical;-webkit-line-clamp:1}
 .dsh-pl .pl-rowState{flex:none;font-size:12.5px;line-height:18px;color:var(--dsw-alias-label-secondary);white-space:nowrap}
+.dsh-pl .pl-rowMeta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 4px}
+.dsh-pl .pl-rowWarning{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 8px;font-size:12px;line-height:1.5;color:var(--dsw-alias-state-warn-primary);overflow-wrap:anywhere}
+.dsh-pl .pl-linkButton{padding:0;border:0;background:none;color:var(--dsw-alias-state-business-primary);font:inherit;font-size:12px;line-height:18px;cursor:pointer;text-decoration:none}
+.dsh-pl .pl-linkButton:hover{text-decoration:underline}
+.dsh-pl .pl-scopeConfirm{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:.5px solid var(--dsw-alias-state-warn-primary);border-radius:var(--dsw-radius-md);background:color-mix(in srgb,var(--dsw-alias-state-warn-primary) 6%,transparent)}
+.dsh-pl .pl-scopeGuidance{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:0 24px}
 .dsh-pl .pl-chev{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform 160ms var(--ds-ease-in-out)}
 .dsh-pl .pl-rowOpen[aria-expanded=true] .pl-chev{transform:rotate(90deg)}
 .dsh-pl .pl-rowBody{display:flex;flex-direction:column;gap:0;padding:12px 0 4px 20px;min-width:0}
@@ -68,7 +74,7 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-save{appearance:none;border:1px solid transparent;border-radius:var(--dsw-radius-md);padding:5px 14px;font:inherit;font-size:13px;line-height:1.5;cursor:pointer;background:var(--dsw-alias-label-primary);color:var(--dsw-alias-bg-layer-3)}
 .dsh-pl .pl-save:disabled{opacity:.4;cursor:default}
 .dsh-pl .pl-save:focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:1px}
-.dsh-pl :is(.pl-button,.pl-iconButton,.pl-rowOpen,.pl-switchControl,.pl-dialogClose,.pl-templatePreview,.pl-primary,.pl-secondary,summary):focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
+.dsh-pl :is(.pl-button,.pl-iconButton,.pl-linkButton,.pl-rowOpen,.pl-switchControl,.pl-dialogClose,.pl-templatePreview,.pl-primary,.pl-secondary,summary):focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
 .dsh-pl :is(select,input,textarea):focus-visible{outline:none;border-color:var(--dsw-alias-state-business-primary)}
 .dsh-pl :is(input,textarea)[aria-invalid=true]{border-color:var(--dsw-alias-state-error-primary)}
 .dsh-pl .pl-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:16px;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
@@ -132,6 +138,14 @@ window.__ModuleLoader__.load({
         summary: "按全局、供应商或模型范围管理提示词 Section，并从内置模板添加。",
         scope: "适用范围",
         scopeHint: "全局层对全部请求生效；供应商与模型层只覆盖更具体的范围。",
+        scopeSettings: "查看范围设置",
+        sectionScope: "范围：{scope}",
+        sectionModelRecommended:
+          "此 Section 的模板推荐模型层；当前为 {scope}，保存后会应用到该范围内的所有模型。要限定模型，请切换范围并选择 provider/model。",
+        scopeSwitchConfirm:
+          "切换范围到 {scope} 会丢弃当前草稿，并重新读取该范围。",
+        scopeSwitchConfirmAction: "切换范围",
+        cancel: "取消",
         provider: "供应商",
         model: "具体模型",
         global: "全局",
@@ -161,7 +175,8 @@ window.__ModuleLoader__.load({
         templatePwshUnknownHint:
           "宿主无法证明 Agent 的实际 shell 方言；带此条件的模板导入后不会自动匹配。可在 Section 编辑区清除 PowerShell 条件，或等待宿主提供方言能力。",
         templateScopeWarning:
-          "部分模板推荐用于模型层；当前范围更宽，加入后会影响更多请求。",
+          "部分模板推荐用于模型层；当前范围更宽，加入后会影响更多请求。要限定模型，请先切换到模型范围；切换会丢弃当前草稿。",
+        templateScopeSettings: "设置模型范围",
         templateAdd: "添加",
         templatePreview: "查看正文",
         templatePreviewTitle: "模板正文",
@@ -238,6 +253,14 @@ window.__ModuleLoader__.load({
         scope: "Applies to",
         scopeHint:
           "The global layer applies to every request; provider and model layers override narrower scopes.",
+        scopeSettings: "View scope settings",
+        sectionScope: "Scope: {scope}",
+        sectionModelRecommended:
+          "This Section's template is recommended for the model layer; the current scope is {scope}, so it applies to every model in that scope. To limit it to one model, switch scope and choose a provider/model.",
+        scopeSwitchConfirm:
+          "Switch to {scope}? The current draft will be discarded and that scope reloaded.",
+        scopeSwitchConfirmAction: "Switch scope",
+        cancel: "Cancel",
         provider: "Provider",
         model: "Model",
         global: "Global",
@@ -268,7 +291,8 @@ window.__ModuleLoader__.load({
         templatePwshUnknownHint:
           "The host cannot prove the agent's actual shell dialect, so this conditional template will not match after it is added. Clear the PowerShell condition in the Section editor, or wait for host dialect support.",
         templateScopeWarning:
-          "Some templates are recommended for the model layer; this scope is broader, so they affect more requests.",
+          "Some templates are recommended for the model layer; this scope is broader, so they affect more requests. To limit them to a model, switch scope first; switching discards the current draft.",
+        templateScopeSettings: "Set model scope",
         templateAdd: "Add",
         templatePreview: "View body",
         templatePreviewTitle: "Template body",
@@ -522,6 +546,7 @@ window.__ModuleLoader__.load({
       const [phase, setPhase] = React.useState("loading");
       const [data, setData] = React.useState(null);
       const [target, setTarget] = React.useState({ scope: "global" });
+      const [pendingTarget, setPendingTarget] = React.useState(null);
       const [staged, setStaged] = React.useState({});
       const [open, setOpen] = React.useState("");
       const [templatesOpen, setTemplatesOpen] = React.useState(false);
@@ -537,6 +562,7 @@ window.__ModuleLoader__.load({
       const targetRef = React.useRef(target);
       const serial = React.useRef(0);
       const dialogRef = React.useRef(null);
+      const scopeSelectRef = React.useRef(null);
       const closeTemplatesRef = React.useRef(null);
       const templatesTriggerRef = React.useRef(null);
       const restoreFocusRef = React.useRef(false);
@@ -611,8 +637,8 @@ window.__ModuleLoader__.load({
         value.scope === "global"
           ? t("global")
           : value.scope === "provider"
-            ? `${t("provider")} · ${value.provider}`
-            : `${value.provider} / ${value.model}`;
+            ? `${t("provider")} · ${value.provider || t("choose")}`
+            : `${value.provider || t("choose")} / ${value.model || t("choose")}`;
       const routes = data?.routes ?? [];
       const identities = data?.identities ?? [];
       const providers = [
@@ -636,6 +662,7 @@ window.__ModuleLoader__.load({
       const usable = complete ? data : null;
       const sections = usable?.sections ?? [];
       const changeTarget = (next) => {
+        setPendingTarget(null);
         if (targetKey(next) === targetKey(target)) return;
         setStaged({});
         setOpen("");
@@ -647,6 +674,12 @@ window.__ModuleLoader__.load({
         setFailed(false);
         setTarget(next);
         if (isComplete(next)) load(next);
+      };
+      const focusScope = () => {
+        const node = scopeSelectRef.current;
+        if (!node) return;
+        node.scrollIntoView?.({ block: "center" });
+        node.focus?.();
       };
       const rows = [
         ...sections.map((row) => ({
@@ -825,6 +858,11 @@ window.__ModuleLoader__.load({
         setReplacedTemplateId("");
       };
       closeTemplatesRef.current = closeTemplates;
+      const goToScopeSettings = () => {
+        closeTemplates();
+        restoreFocusRef.current = false;
+        setTimeout(focusScope, 0);
+      };
       const addedTemplate = (usable?.templates ?? []).find(
         (template) =>
           template.id === addedTemplateId && templateEntryOf(template),
@@ -885,6 +923,14 @@ window.__ModuleLoader__.load({
         return !row || !sameFields(change.fields, fieldsOf(row));
       });
       const dirty = changed.length > 0;
+      const requestTarget = (next) => {
+        if (targetKey(next) === targetKey(target)) return;
+        if (dirty) {
+          setPendingTarget(next);
+          return;
+        }
+        changeTarget(next);
+      };
       const keys = changed.map(([, change]) => `${change.kind}:${change.id}`);
       const invalid =
         keys.length !== new Set(keys).size ||
@@ -1025,6 +1071,15 @@ window.__ModuleLoader__.load({
           : entry.row.chain.length > 1 || entry.row.kind === "native"
             ? t("remove")
             : t("deleteLocal");
+        const currentId = change?.id ?? entry.id;
+        const modelTemplate = (usable?.templates ?? []).find(
+          (template) =>
+            template.sectionId === currentId &&
+            template.recommendedScope === "model",
+        );
+        const modelRecommended = Boolean(
+          modelTemplate && target.scope !== "model",
+        );
         return h(
           "li",
           { key: entry.key, className: "pl-row" },
@@ -1070,6 +1125,47 @@ window.__ModuleLoader__.load({
             h(
               "div",
               { className: "pl-rowBody" },
+              h(
+                "div",
+                { className: "pl-rowMeta" },
+                h(
+                  "span",
+                  { className: "pl-tag", "data-tone": "outline" },
+                  interpolate(t("sectionScope"), "scope", scopeLabel(target)),
+                ),
+                h(
+                  "button",
+                  {
+                    type: "button",
+                    className: "pl-linkButton",
+                    onClick: focusScope,
+                  },
+                  t("scopeSettings"),
+                ),
+              ),
+              modelRecommended &&
+                h(
+                  "div",
+                  { className: "pl-rowWarning", role: "note" },
+                  h(
+                    "span",
+                    null,
+                    interpolate(
+                      t("sectionModelRecommended"),
+                      "scope",
+                      scopeLabel(target),
+                    ),
+                  ),
+                  h(
+                    "button",
+                    {
+                      type: "button",
+                      className: "pl-linkButton",
+                      onClick: focusScope,
+                    },
+                    t("scopeSettings"),
+                  ),
+                ),
               entry.isNew &&
                 textField(
                   t("id"),
@@ -1230,8 +1326,9 @@ window.__ModuleLoader__.load({
                   {
                     value: target.scope,
                     "aria-label": t("scope"),
+                    ref: scopeSelectRef,
                     onChange: (event) =>
-                      changeTarget(
+                      requestTarget(
                         event.target.value === "global"
                           ? { scope: "global" }
                           : {
@@ -1260,7 +1357,7 @@ window.__ModuleLoader__.load({
                       value: target.provider ?? "",
                       "aria-label": t("provider"),
                       onChange: (event) =>
-                        changeTarget({
+                        requestTarget({
                           ...target,
                           provider: event.target.value,
                           ...(target.scope === "model" ? { model: "" } : {}),
@@ -1282,7 +1379,7 @@ window.__ModuleLoader__.load({
                       value: target.model ?? "",
                       "aria-label": t("model"),
                       onChange: (event) =>
-                        changeTarget({ ...target, model: event.target.value }),
+                        requestTarget({ ...target, model: event.target.value }),
                     },
                     [
                       ["", t("choose")],
@@ -1292,6 +1389,42 @@ window.__ModuleLoader__.load({
                 ),
             ),
             h("p", { className: "pl-hint" }, t("scopeHint")),
+            pendingTarget &&
+              h(
+                "div",
+                { className: "pl-scopeConfirm", role: "alert" },
+                h(
+                  "p",
+                  { className: "pl-inlineWarn" },
+                  interpolate(
+                    t("scopeSwitchConfirm"),
+                    "scope",
+                    scopeLabel(pendingTarget),
+                  ),
+                ),
+                h(
+                  "div",
+                  { className: "pl-actions" },
+                  h(
+                    "button",
+                    {
+                      type: "button",
+                      className: "pl-button",
+                      onClick: () => setPendingTarget(null),
+                    },
+                    t("cancel"),
+                  ),
+                  h(
+                    "button",
+                    {
+                      type: "button",
+                      className: "pl-button",
+                      onClick: () => changeTarget(pendingTarget),
+                    },
+                    t("scopeSwitchConfirmAction"),
+                  ),
+                ),
+              ),
             usable?.capabilities?.modelLayers === false &&
               h("p", { className: "pl-hint" }, t("blocked")),
           ),
@@ -1302,6 +1435,11 @@ window.__ModuleLoader__.load({
               "div",
               { className: "pl-labelRow" },
               h("span", { className: "pl-label" }, t("sections")),
+              h(
+                "span",
+                { className: "pl-tag", "data-tone": "outline" },
+                interpolate(t("sectionScope"), "scope", scopeLabel(target)),
+              ),
               h("span", { className: "pl-count" }, String(rows.length)),
             ),
             h(
@@ -1579,9 +1717,22 @@ window.__ModuleLoader__.load({
                         (template) => template.recommendedScope === "model",
                       ) &&
                       h(
-                        "p",
-                        { className: "pl-dialogNotice", role: "note" },
-                        t("templateScopeWarning"),
+                        "div",
+                        { className: "pl-scopeGuidance" },
+                        h(
+                          "p",
+                          { className: "pl-inlineWarn", role: "note" },
+                          t("templateScopeWarning"),
+                        ),
+                        h(
+                          "button",
+                          {
+                            type: "button",
+                            className: "pl-button",
+                            onClick: goToScopeSettings,
+                          },
+                          t("templateScopeSettings"),
+                        ),
                       ),
                     h(
                       "div",

@@ -114,7 +114,11 @@ const savedLocal = {
     interpolate: false,
     position: 'default',
     when: {},
-    chain: [{ scope: 'global', file: 'global.yaml' }],
+    chain: [{
+      scope: 'global',
+      file: 'global.yaml',
+      target: { scope: 'global' },
+    }],
   }],
 }
 const iconButtons = (view) => find(view, (node) => node.type === 'button'
@@ -299,6 +303,79 @@ test('line-ending and trailing-whitespace differences do not mark a template as 
     && node.children?.[0] === 'templateModified').length, 0)
 })
 
+test('the Section editor and list label show the current scope', async () => {
+  const ui = await mount(savedLocal)
+  let view = ui.render()
+  assert.equal(find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'sectionScope').length, 1, 'the list label carries the scope')
+  rowOpen(view).props.onClick()
+  view = ui.render()
+  assert.equal(find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'sectionScope').length, 2, 'the open editor repeats the scope')
+  assert.ok(find(view, (node) => node.props?.className === 'pl-linkButton'
+    && node.children?.[0] === 'scopeSettings').length)
+})
+
+test('a model-recommended template section warns at a broader scope', async () => {
+  const modelSection = {
+    ...withTemplates,
+    sections: [{
+      ...savedLocal.sections[0],
+      id: 'custom:flash-execution-core',
+      content: 'Flash execution body',
+    }],
+  }
+  const ui = await mount(modelSection)
+  let view = ui.render()
+  rowOpen(view).props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.props?.className === 'pl-rowWarning').length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'sectionModelRecommended').length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'scopeSettings').length)
+
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  const scopeButton = find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('templateScopeSettings'))[0]
+  assert.ok(scopeButton)
+  scopeButton.props.onClick()
+  view = ui.render()
+  assert.equal(dialog(view), undefined)
+})
+
+test('changing scope with a draft asks before discarding it', async () => {
+  const scoped = {
+    ...savedLocal,
+    routes: [{ provider: 'p', model: 'm' }],
+  }
+  const ui = await mount(scoped)
+  let view = ui.render()
+  rowOpen(view).props.onClick()
+  view = ui.render()
+  textarea(view).props.onChange({ target: { value: 'Changed body' } })
+  view = ui.render()
+  const findScope = (current) => find(current, (node) => node.type === 'select'
+    && node.props?.['aria-label'] === 'scope')[0]
+  findScope(view).props.onChange({ target: { value: 'provider' } })
+  view = ui.render()
+  assert.ok(find(view, (node) => node.props?.className === 'pl-scopeConfirm').length)
+  assert.equal(findScope(view).props.value, 'global', 'the scope is not changed before confirmation')
+  find(view, (node) => node.type === 'button' && node.children?.includes?.('cancel'))[0].props.onClick()
+  view = ui.render()
+  assert.equal(find(view, (node) => node.props?.className === 'pl-scopeConfirm').length, 0)
+  assert.equal(textarea(view).props.value, 'Changed body', 'cancel keeps the draft')
+
+  findScope(view).props.onChange({ target: { value: 'provider' } })
+  view = ui.render()
+  find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('scopeSwitchConfirmAction'))[0].props.onClick()
+  await new Promise(resolve => setImmediate(resolve))
+  view = ui.render()
+  assert.equal(findScope(view).props.value, 'provider')
+  assert.equal(find(view, (node) => node.props?.className === 'pl-scopeConfirm').length, 0)
+  assert.equal(saveButton(view).props.disabled, true, 'switching discards the draft')
+})
+
 test('a local override removes the override rather than the definition', async () => {
   const override = {
     ...savedLocal,
@@ -396,9 +473,9 @@ test('the picker warns when model-layer templates are added at a broader scope',
   let view = ui.render()
   templateTrigger(view).props.onClick()
   view = ui.render()
-  const warning = find(view, byClass('pl-dialogNotice'))[0]
+  const warning = find(view, (node) => node.children?.[0] === 'templateScopeWarning')[0]
   assert.ok(warning)
-  assert.equal(warning.children[0], 'templateScopeWarning')
+  assert.equal(warning.props.role, 'note')
   const modelTag = find(view, (node) => node.children?.includes?.('templateRecommendedModel'))[0]
   assert.equal(modelTag.props['data-tone'], 'warning')
   const globalTag = find(view, (node) => node.children?.includes?.('templateRecommendedGlobal'))[0]
