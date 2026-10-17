@@ -45,7 +45,7 @@ UI 保存、候选激活、装配预览、系统消息已提交分别显示。`c
 
 本包由 `dsh-method-principles` 重构而来，旧的 `Config.text`、`Config.routes` 和 `deployment:method-principles` 段已撤销。不会自动导入旧文案，也不会编辑已安装环境。旧安装应先检查真实配置，再显式导入所需模板；不要同时启用旧包，以免重复注入。旧实现与验证记录可从 Git 历史和历史决策查阅。
 
-本地目录和包名为 `dsh-prompt-layers`。Git 远端仍指向既有 `FengZhiHen1/dsh-method-principles` 仓库，保留实际可解析地址；远端仓库更名不是本地源码更名的隐式副作用。
+本地目录、包名与 Git 远端均为 `dsh-prompt-layers`（`FengZhiHen1/dsh-prompt-layers`）。旧远端地址由 GitHub 重定向到新名；引用本包的外部声明应改用新地址与新包名。
 
 ## 开发与验证
 

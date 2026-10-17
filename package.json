@@ -6,7 +6,7 @@
   "description": "Declarative system-prompt layers with explicit template import and shared YAML/Markdown editing.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/FengZhiHen1/dsh-method-principles.git"
+    "url": "https://github.com/FengZhiHen1/dsh-prompt-layers.git"
   },
   "type": "module",
   "main": "index.js",
