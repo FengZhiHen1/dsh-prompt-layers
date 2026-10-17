@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "提示词分层",
+    "description": "以 YAML/Markdown 声明系统提示词 Section，支持全局、供应商与模型继承、版本化模板和一次修订围栏保存。"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Prompt Layers",
+    "description": "Declarative system-prompt Sections with global, provider and model inheritance, versioned templates and one revision-fenced save."
+  }
+}
