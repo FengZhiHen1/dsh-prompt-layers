@@ -1,9 +1,9 @@
 {
-  "name": "dsh-method-principles",
-  "version": "0.1.0",
+  "name": "dsh-prompt-layers",
+  "version": "0.2.0",
   "private": true,
   "license": "MIT",
-  "description": "Append a distilled methodology-principles section to the DSH system prompt.",
+  "description": "Declarative system-prompt layers with explicit template import and shared YAML/Markdown editing.",
   "repository": {
     "type": "git",
     "url": "https://github.com/FengZhiHen1/dsh-method-principles.git"
@@ -14,30 +14,40 @@
     ".": {
       "default": "./index.js"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./client": "./client.js"
   },
   "dependencies": {
-    "@deepseek-ai/schemastery": "^3.18.2"
-  },
-  "devDependencies": {
-    "@deepseek-ai/schemastery": "^3.18.2"
+    "@deepseek-ai/schemastery": "^3.18.2",
+    "ajv": "^8.17.1",
+    "yaml": "^2.8.1"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "check": "node --check index.js && node --check src/adapter/host.js && node --test test/*.test.mjs"
   },
   "engines": {
-    "node": "^22.19.0 || >=24"
+    "node": "^22.19.0 || >=24",
+    "dsh": ">=0.2.0-rc.2 <0.3.0-0"
   },
   "files": [
     "index.js",
+    "client.js",
     "src/",
+    "templates/",
+    "prompt-layers.schema.json",
     "cordis.patch.yml",
-    "README.md"
+    "README.md",
+    "docs/"
   ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "manifestVersion": 1,
+    "client": {
+      "platform": "web",
+      "immediately": true
     }
   }
 }

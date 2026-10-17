@@ -1,87 +1,60 @@
-# dsh-method-principles
+# dsh-prompt-layers
 
-向 DSH 系统提示词追加一段方法论原则的薄壳插件。
+以 YAML/Markdown 管理 DSH 系统提示词 Section。Web UI 与 Agent 编辑同一份文件；七份版本化模板只有显式导入后才生效。
 
-- 注册**一个全局提示词段**（段名 `deployment:method-principles`，order `200`），对全部 agent（含子代理）生效；
-- 段内文本分两层：**基础层**（4 条证据诚实底线，全部 agent 都拿到）与**工程层**（按触发时刻组织的交付纪律，只给 `standard`/`ptc` 主 Agent）；两层可分别用 `Config.text` 与 `Config.routes` 覆盖；
-- 置 `text: ''` 且 `routes: []` 即关闭该段；
-- 插件不提供 Service、不注册工具、不注册动态上下文，唯一副作用是段注册（随 fiber 自动回收）。
-
-设计与代际说明见 `docs/`（需求、技术栈设计、项目结构设计、机制与部署、决策记录）。
-
-## 安装
-
-### 稳定 profile（发布物形态）
-
-```powershell
-$env:DSH_HOME='<目标 HOME>'
-node '<实例版本 bin>' plugin --profile web add github:FengZhiHen1/dsh-method-principles#<ref>
-```
-
-- 首次 `add` 若被 pnpm 拦截 git 依赖的 `prepare`，按提示把包键写入该 profile 的 `pnpm-workspace.yaml` 的 `allowBuilds` 后重试。
-- 安装后**需要重启实例**才生效（bundle 成员变化不热重载）。
-
-### 试验 profile（源码直挂）
-
-```powershell
-$env:DSH_HOME='<目标 HOME>'
-node '<实例版本 bin>' plugin --profile test add link:<本仓库路径>
-```
+当前为 0.2.0 开发版本，集成目标为 DSH 0.2.1-rc.2（已验证兼容 0.2.0-rc.2）。该宿主在最终请求路由确定之前已经渲染系统提示词，因此 **provider/model 层目前只支持配置与预览，禁止运行时激活**。这项兼容门槛未通过，不能视为完整 V1 发布版本。全局配置与身份过滤独立实现；PowerShell 后端没有公开可信方言元数据时，其工具条件为 unknown，不猜测命中。
 
 ## 配置
 
-默认行不带 config，文案由 schema 默认值提供。要替换文案或按 agent 追加协议，在自己的 profile patch 层按 id 覆盖：
+默认根目录为 `$DSH_HOME/prompt-layers/`，缺失目录等同空配置。宿主行只放轻量配置：
 
 ```yaml
-# $DSH_HOME/profiles/<profile>/cordis.patch.yml 或 --patch overlay
-- id: method-principles
+- id: prompt-layers
   config:
-    text: |                      # 基础文案：所有 agent（含子代理）都拿到
-      Working principles:
-      - ...
-    routes:                      # 可选：按 agent preset 追加的协议
-      - id: engineering
-        presets: [standard, ptc] # 按 preset id 匹配（首条命中生效）
-        mainAgentOnly: true      # 默认值；子代理（委派深度 > 0）不继承
-        text: |
-          Engineering rigor:
-          - ...
+    directory: ''            # 空值使用 DSH_HOME/prompt-layers
+    pollIntervalMs: 1000
 ```
 
-- 覆盖是**整个 config 值替换**（不是深合并）；只写 `text` 即可保留基础文案语义。
-- `text: ''` 且无 `routes` 表示关闭该段。
-- 路由规则与降级行为见 `docs/technical-details/提示词段机制.md`。
-- 文案是纯静态字符串，**不要写 `{{...}}`**：未注册的变量会让该 scope 的装配失败。
+规则文件布局：`global.yaml`、`providers/*.yaml`、`models/*.yaml`、`content/**/*.md`。文件名不参与路由匹配，provider/model 必须在文件内显式声明。结构规范随包发行于 `prompt-layers.schema.json`。
 
-## 验证
+```yaml
+apiVersion: prompt-layers/v1
+scope: global
+sections:
+  - id: custom:my-guidance
+    contentFile: content/my-guidance.md
+    interpolate: false
+    when:
+      agent:
+        role: main
+```
 
-1. 新建会话，展开系统提示词折叠行：该段应出现在 **persona 之后、plan 指引之前**，内容与默认文案一致。
-   - ⚠️ **persona 锚点随基线而变**：`0.1.2-rc.1` 时代 persona 是单段 `deployment:persona`；`0.1.7-rc.2` 起拆为 `deployment:persona-prefix`(0) 与 `deployment:persona-suffix`(10200)。本段 order `200` 位于**前缀之后、plan 之前**，因此在后一代里它排在 persona **后缀之前**（这是被接受的取舍，理由见 `docs/technical-details/提示词段机制.md`「代际提示」）。
-2. 子代理会话同样可见该段（全局段对全部 agent 生效），但只含基础层。
-3. 组合树复查：`node '<实例版本 bin>' --profile <name> --dump-config` 应恰有一行 `id: method-principles` / `name: dsh-method-principles`。
-   - ⚠️ 重复行**不会报错**（旧代的 `duplicate loader entry id` 守卫已被上游删除），须人工核对。
+自定义 Section 默认启用，默认关闭插值。三层合成顺序是 global → provider → 精确 model；同 ID 未声明字段继承，正文整体替换，`when` 整体替换。`position: default` 回首次定义的位置；`before`/`after` 锚点缺失、禁用或循环都拒绝。`existing` 精确覆盖宿主已有段，受管段修改要求 `allowManagedOverride: true`。动态上下文、工具 Schema 和权限不在修改范围内。
 
-## 卸载
+文件热加载会验证完整候选集；坏 YAML、损坏 Markdown、越界路径或语义错误保留整套进程内旧快照。重启无有效配置则回退原生，不保存跨重启缓存。`generated/status.json` 和 `generated/sections-index.json` 是派生状态，不反向加载；它们不包含提示词正文。
+
+## 模板与界面
+
+插件详情页提供原文编辑、修订冲突检查、模板正文预览、显式导入及“一键复制给 Agent”。模板索引与装配指南位于 `templates/`。更新插件不会覆盖已导入的用户正文，不修改工作区或 HOME 的 AGENTS。
+
+模板包括证据纪律、反无依据复杂化、技术沟通、Flash 共享执行核心、Flash 主 Agent 统筹、PowerShell 专项和凭证感知自动化。主统筹只匹配主 Agent；共享核心建议按用户选择的精确模型匹配，当前受模型层兼容门禁约束。模板不依赖 Guardrails，也不提供秘密库、输出脱敏或权限隔离。
+
+UI 保存、候选激活、装配预览、系统消息已提交分别显示。`complete:true` 可在 waterfall 后抑制普通 Section；不能把预览成功当成模型已经使用。实际模型行为改善仍需独立 A/B 验证。
+
+## 更名与旧安装
+
+本包由 `dsh-method-principles` 重构而来，旧的 `Config.text`、`Config.routes` 和 `deployment:method-principles` 段已撤销。不会自动导入旧文案，也不会编辑已安装环境。旧安装应先检查真实配置，再显式导入所需模板；不要同时启用旧包，以免重复注入。旧实现与验证记录可从 Git 历史和历史决策查阅。
+
+本地目录和包名为 `dsh-prompt-layers`。Git 远端仍指向既有 `FengZhiHen1/dsh-method-principles` 仓库，保留实际可解析地址；远端仓库更名不是本地源码更名的隐式副作用。
+
+## 开发与验证
 
 ```powershell
-node '<实例版本 bin>' plugin --profile <name> remove dsh-method-principles
+pnpm install --ignore-scripts
+pnpm check
+node ../../tools/plugin-layering-check.mjs .
 ```
 
-重启实例后该段消失。
+纯逻辑和文件测试使用 Node 内置测试器，无构建步骤。真实运行时测试须设置 `DSH_RUNTIME_DIR` 为目标版本根目录；缺失时明确跳过。安装到 test、完整实例请求验证、浏览器走查和稳定发布是不同门禁，记录归 `docs/`，未验项集中于 `docs/TODO.md`。
 
-## 开发
-
-```powershell
-pnpm install
-pnpm test     # node --test（配置 / 段契约 / 路由 / 生命周期 / 组合 / 真实运行时装配）
-pnpm check    # 语法检查 + 测试
-node ..\..\tools\plugin-layering-check.mjs .   # 仓库分层门禁（薄壳豁免）
-```
-
-`test/runtime-assembly.test.mjs` 会装载本机已安装的 DSH 运行时的**真实** `dsh-system-prompt` 跑一次真实装配；找不到运行时则整层 **skip**（并给出原因），也可用 `DSH_RUNTIME_DIR` 指定运行时目录。
-
-结构：`index.js` 只做重导出，全部接线在 `src/adapter/host.js`，纯路由判定在 `src/core/routes.js`。
-
-## 许可
-
-MIT
+许可证：MIT。

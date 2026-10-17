@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dsh-prompt-layers:schema:v1",
+  "title": "dsh-prompt-layers YAML Configuration v1 (structural validation)",
+  "description": "Schema for file shape only. Cross-file uniqueness, first-definition content, controlled path resolution, host section capabilities and final model route require plugin semantic validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "apiVersion": {
+      "const": "prompt-layers/v1"
+    },
+    "scope": {
+      "enum": [
+        "global",
+        "provider",
+        "model"
+      ]
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/customSection"
+      },
+      "default": [],
+      "maxItems": 256
+    },
+    "existing": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/sectionId"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/existingSection"
+      },
+      "default": {}
+    }
+  },
+  "required": [
+    "apiVersion",
+    "scope"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "scope": {
+            "const": "global"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "provider"
+              ]
+            },
+            {
+              "required": [
+                "model"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "scope": {
+            "const": "provider"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "provider"
+        ],
+        "not": {
+          "required": [
+            "model"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "scope": {
+            "const": "model"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "provider",
+          "model"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "sectionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "customSection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^custom:[A-Za-z0-9][A-Za-z0-9._:-]{0,126}$"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentFile": {
+          "type": "string",
+          "pattern": "^content/.+\\.md$"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "position": {
+          "oneOf": [
+            {
+              "const": "default"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "before": {
+                  "$ref": "#/$defs/sectionId"
+                }
+              },
+              "required": [
+                "before"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/$defs/sectionId"
+                }
+              },
+              "required": [
+                "after"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "interpolate": {
+          "type": "boolean"
+        },
+        "when": {
+          "$ref": "#/$defs/when"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "content",
+              "contentFile"
+            ]
+          }
+        }
+      ]
+    },
+    "existingSection": {
+      "type": "object",
+      "properties": {
+        "allowManagedOverride": {
+          "type": "boolean"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentFile": {
+          "type": "string",
+          "pattern": "^content/.+\\.md$"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "position": {
+          "oneOf": [
+            {
+              "const": "default"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "before": {
+                  "$ref": "#/$defs/sectionId"
+                }
+              },
+              "required": [
+                "before"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "after": {
+                  "$ref": "#/$defs/sectionId"
+                }
+              },
+              "required": [
+                "after"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "interpolate": {
+          "type": "boolean"
+        },
+        "when": {
+          "$ref": "#/$defs/when"
+        }
+      },
+      "required": [],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "not": {
+            "required": [
+              "content",
+              "contentFile"
+            ]
+          }
+        }
+      ]
+    },
+    "when": {
+      "description": "An empty object explicitly clears inherited conditions.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "presets": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "role": {
+              "enum": [
+                "main",
+                "delegated"
+              ]
+            }
+          }
+        },
+        "tools": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "powershell"
+          ],
+          "properties": {
+            "powershell": {
+              "const": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+## quality_floor 报告
+
+- root: `.`
+- 扫描文件: 14（py: 0, ts: 14）
+- 交付面引用检查: git 索引可用（已跟踪 44 / 未暂存 1）
+- error: 0 / warning: 15
+- **verdict: PASS**
+
+### warning
+| 规则 | 位置 | 内容 |
+|---|---|---|
+| high-complexity | client.js:3 | factory(require) {  # 逻辑行数 288 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
+| high-complexity | client.js:54 | function PromptLayersPanel({ t }) {  # 逻辑行数 223 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
+| high-complexity | client.js:122 | const perform = React.useCallback(async (action, body, successText) => {  # 逻辑行数 38 / 逻辑最大缩进 16 列（JS |
+| high-complexity | client.js:132 | setDrafts(current => {  # 逻辑行数 8 / 逻辑最大缩进 16 列（JSX 返回块不计入） |
+| high-complexity | client.js:239 | routeList.length ? routeList.map(route => {  # 逻辑行数 5 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
+| high-complexity | client.js:258 | (preview.sections || []).length === 0 ? h('p', null, t('noSections')) : preview.sections.map((sectio |
+| docstring-promise | src\adapter\application.js:19 | export class PromptLayersApplication {  # 函数体有 throw 但 TSDoc 未声明 @throws |
+| docstring-promise | src\adapter\files.js:50 | export class ConfigurationFiles {  # 函数体有 throw 但 TSDoc 未声明 @throws |
+| docstring-promise | src\adapter\host.js:37 | export async function apply(ctx, config = {}) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
+| high-complexity | src\adapter\host.js:37 | export async function apply(ctx, config = {}) {  # 逻辑行数 92 / 逻辑最大缩进 12 列（JSX 返回块不计入） |
+| docstring-promise | src\adapter\runtime.js:16 | export class PromptLayersRuntime {  # 函数体有 throw 但 TSDoc 未声明 @throws |
+| docstring-promise | src\core\configuration.js:7 | export function createConfigurationParser(schema) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
+| docstring-promise | src\core\configuration.js:34 | export function assertContentPath(value) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
+| high-complexity | src\core\layers.js:12 | export function validateDocuments(documents) {  # 逻辑行数 86 / 逻辑最大缩进 10 列（JSX 返回块不计入） |
+| high-complexity | src\core\layers.js:107 | export function composeLayers(documents, nativeSections, facts) {  # 逻辑行数 85 / 逻辑最大缩进 8 列（JSX 返回块不计入 |

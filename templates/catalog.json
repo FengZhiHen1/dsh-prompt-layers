@@ -1,0 +1,75 @@
+[
+  {
+    "id": "builtin:evidence-discipline",
+    "version": "1.0.0",
+    "title": "Evidence discipline",
+    "description": "证据诚实底线：先说清可观察的成功标准，分开观察与推断，披露有实质影响的不确定性，且只在对因果结论下判断时要求保留条件的对照。适用于全部主/子 Agent。",
+    "file": "evidence-discipline.md",
+    "sectionId": "custom:evidence-discipline",
+    "recommendedScope": "global"
+  },
+  {
+    "id": "builtin:anti-unwarranted-defense",
+    "version": "1.0.0",
+    "title": "Scope and warranted complexity",
+    "description": "反无依据的预防性复杂化：不为假想的质疑者、风险或未来需求添加工作与说明，代码与文稿都取满足真实约束的最小方案，同时保留真实的安全检查与不确定性。适用于全部主/子 Agent。",
+    "file": "anti-unwarranted-defense.md",
+    "sectionId": "custom:anti-unwarranted-defense",
+    "recommendedScope": "global"
+  },
+  {
+    "id": "builtin:technical-communication",
+    "version": "1.0.0",
+    "title": "Technical communication",
+    "description": "技术表达规范：术语一致、句子直陈、条件先于动作、精确给出量纲与边界并原样保留代码与引用。只约束技术答复与技术文档，不接管讲稿、答辩稿、创意或申报类文体。适用于全部主/子 Agent。",
+    "file": "technical-communication.md",
+    "sectionId": "custom:technical-communication",
+    "recommendedScope": "global"
+  },
+  {
+    "id": "builtin:flash-execution-core",
+    "version": "1.0.0",
+    "title": "Engineering execution discipline for resource-constrained coding agents",
+    "description": "面向资源受限模型的详细工程执行纪律：任务边界与阻塞上报、真实仓库事实、语义编辑优先原生文件工具、一次性脚本生命周期、按实际影响分级的风险防护、比例化验证与按证据报告。对命中该模型路由的主/子 Agent 同等适用，不要求子 Agent 承担全项目验收。",
+    "file": "flash-execution-core.md",
+    "sectionId": "custom:flash-execution-core",
+    "recommendedScope": "model"
+  },
+  {
+    "id": "builtin:flash-main-coordination",
+    "version": "1.0.0",
+    "title": "Main-agent coordination and final integration (conditional extension)",
+    "description": "主 Agent 统筹扩展：整体交付的验收边界、委派收益门槛、子任务目标与文件所有权、并行写入协调、子 Agent 证据复核与最终用户报告。只在主 Agent 生效，且不能替代共享执行核心。",
+    "file": "flash-main-coordination.md",
+    "sectionId": "custom:flash-main-coordination",
+    "recommendedScope": "model",
+    "when": {
+      "agent": {
+        "role": "main"
+      }
+    }
+  },
+  {
+    "id": "builtin:pwsh-guidance",
+    "version": "1.0.0",
+    "title": "PowerShell execution guidance (conditional)",
+    "description": "PowerShell 专有写法与失败语义：版本差异、单双引号与子表达式求值、LiteralPath 与通配、cmdlet 非终止错误与 native 退出码、输出编码边界。仅在实际可执行 PowerShell 的 Agent 上生效，不强迫改用 PowerShell。",
+    "file": "pwsh-guidance.md",
+    "sectionId": "custom:pwsh-guidance",
+    "recommendedScope": "global",
+    "when": {
+      "tools": {
+        "powershell": true
+      }
+    }
+  },
+  {
+    "id": "builtin:credential-aware-automation",
+    "version": "1.0.0",
+    "title": "Credential-aware automation",
+    "description": "凭证感知的自动化：用项目既有认证 CLI、SDK 凭证链或运行时注入直接完成授权任务，不把秘密复制进命令参数、日志、diff 或交接，诊断优先取状态与非秘密字段，只在真实需要授权步骤时请用户参与。适用于全部主/子 Agent。",
+    "file": "credential-aware-automation.md",
+    "sectionId": "custom:credential-aware-automation",
+    "recommendedScope": "global"
+  }
+]
