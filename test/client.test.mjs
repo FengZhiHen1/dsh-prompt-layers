@@ -226,6 +226,9 @@ test('saved Sections use delete copy while new rows use discard copy', async () 
   view = ui.render()
   templateAddButton(view).props.onClick()
   view = ui.render()
+  find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('templateModelConfirmAdd'))[0].props.onClick()
+  view = ui.render()
   const discard = iconButtons(view).find((node) => String(node.props?.['aria-label']).startsWith('discardNew'))
   assert.ok(discard)
   assert.equal(discard.props.title, 'discardNew')
@@ -314,6 +317,46 @@ test('the Section editor and list label show the current scope', async () => {
     && node.children?.[0] === 'sectionScope').length, 2, 'the open editor repeats the scope')
   assert.ok(find(view, (node) => node.props?.className === 'pl-linkButton'
     && node.children?.[0] === 'scopeSettings').length)
+})
+
+test('the page states the scope and template add order', async () => {
+  const ui = await mount(empty)
+  const view = ui.render()
+  assert.ok(find(view, byClass('pl-guide')).length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'scopeGuideOrder').length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'scopeGuideModel').length)
+  assert.equal(find(view, (node) => node.children?.[0] === 'scopeHint').length, 1)
+})
+
+test('the picker states each add target and confirms a model template at a broader scope', async () => {
+  const ui = await mount(withTemplates)
+  let view = ui.render()
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateScopeSteps').length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateAddTarget').length)
+
+  const adds = find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('templateAdd'))
+  assert.equal(adds.length, 2)
+  adds[1].props.onClick()
+  view = ui.render()
+  const confirm = find(view, byClass('pl-templateConfirm'))[0]
+  assert.ok(confirm)
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateModelConfirm').length)
+  assert.ok(find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('templateModelConfirmAdd')).length)
+  assert.ok(find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('templateScopeSettings')).length)
+  assert.equal(find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'templateAdded').length, 0)
+
+  find(view, (node) => node.type === 'button'
+    && node.children?.includes?.('templateModelConfirmAdd'))[0].props.onClick()
+  view = ui.render()
+  assert.equal(find(view, (node) => node.props?.className === 'pl-tag'
+    && node.children?.[0] === 'templateAdded').length, 1)
+  assert.equal(find(view, byClass('pl-templateConfirm')).length, 0)
 })
 
 test('a model-recommended template section warns at a broader scope', async () => {

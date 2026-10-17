@@ -9,9 +9,9 @@
 ### warning
 | 规则 | 位置 | 内容 |
 |---|---|---|
-| high-complexity | client.js:6 | factory(require) {  # 逻辑行数 1908 / 逻辑最大缩进 42 列（JSX 返回块不计入） |
-| high-complexity | client.js:545 | function Panel({ t, locale }) {  # 逻辑行数 1347 / 逻辑最大缩进 42 列（JSX 返回块不计入） |
-| high-complexity | client.js:1894 | apply(ctx) {  # 逻辑行数 18 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
+| high-complexity | client.js:6 | factory(require) {  # 逻辑行数 2013 / 逻辑最大缩进 44 列（JSX 返回块不计入） |
+| high-complexity | client.js:569 | function Panel({ t, locale }) {  # 逻辑行数 1428 / 逻辑最大缩进 44 列（JSX 返回块不计入） |
+| high-complexity | client.js:1999 | apply(ctx) {  # 逻辑行数 18 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
 | docstring-promise | src\adapter\application.js:32 | export class PromptLayersApplication {  # 函数体有 throw 但 TSDoc 未声明 @throws |
 | high-complexity | src\adapter\application.js:364 | async importTemplates(request) {  # 逻辑行数 117 / 逻辑最大缩进 12 列（JSX 返回块不计入） |
 | docstring-promise | src\adapter\files.js:50 | export class ConfigurationFiles {  # 函数体有 throw 但 TSDoc 未声明 @throws |

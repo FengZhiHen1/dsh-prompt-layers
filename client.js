@@ -43,6 +43,10 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-linkButton:hover{text-decoration:underline}
 .dsh-pl .pl-scopeConfirm{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:.5px solid var(--dsw-alias-state-warn-primary);border-radius:var(--dsw-radius-md);background:color-mix(in srgb,var(--dsw-alias-state-warn-primary) 6%,transparent)}
 .dsh-pl .pl-scopeGuidance{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:0 24px}
+.dsh-pl .pl-guide{display:flex;flex-direction:column;gap:3px;padding:8px 10px;border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-3);color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}
+.dsh-pl .pl-guide p{margin:0}
+.dsh-pl .pl-templateTarget{margin-top:2px;font-size:11px;line-height:17px;color:var(--dsw-alias-label-tertiary)}
+.dsh-pl .pl-templateConfirm{grid-column:1/-1;display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:.5px solid var(--dsw-alias-state-warn-primary);border-radius:var(--dsw-radius-md);background:color-mix(in srgb,var(--dsw-alias-state-warn-primary) 6%,transparent)}
 .dsh-pl .pl-chev{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform 160ms var(--ds-ease-in-out)}
 .dsh-pl .pl-rowOpen[aria-expanded=true] .pl-chev{transform:rotate(90deg)}
 .dsh-pl .pl-rowBody{display:flex;flex-direction:column;gap:0;padding:12px 0 4px 20px;min-width:0}
@@ -139,9 +143,13 @@ window.__ModuleLoader__.load({
         scope: "适用范围",
         scopeHint: "全局层对全部请求生效；供应商与模型层只覆盖更具体的范围。",
         scopeSettings: "查看范围设置",
+        scopeGuideOrder:
+          "操作顺序：先选适用范围，再新建或从模板添加；本页的新增、编辑、删除和模板添加都写入当前范围，切换范围会丢弃草稿。",
+        scopeGuideModel:
+          "要限定到模型：适用范围选“模型” → 选择 provider/model → 再添加模板；模板添加不会另行询问模型。",
         sectionScope: "范围：{scope}",
         sectionModelRecommended:
-          "此 Section 的模板推荐模型层；当前为 {scope}，保存后会应用到该范围内的所有模型。要限定模型，请切换范围并选择 provider/model。",
+          "此 Section 的模板推荐模型层；当前为 {scope}，保存后会影响该范围内的所有模型。要限定模型：将顶部适用范围改为“模型”，选择 provider/model，再重新添加；切换会丢弃当前草稿，已保存的全局 Section 不会自动迁移。",
         scopeSwitchConfirm:
           "切换范围到 {scope} 会丢弃当前草稿，并重新读取该范围。",
         scopeSwitchConfirmAction: "切换范围",
@@ -176,7 +184,13 @@ window.__ModuleLoader__.load({
           "宿主无法证明 Agent 的实际 shell 方言；带此条件的模板导入后不会自动匹配。可在 Section 编辑区清除 PowerShell 条件，或等待宿主提供方言能力。",
         templateScopeWarning:
           "部分模板推荐用于模型层；当前范围更宽，加入后会影响更多请求。要限定模型，请先切换到模型范围；切换会丢弃当前草稿。",
+        templateScopeSteps:
+          "操作顺序：1) 关闭弹层；2) 顶部“适用范围”选“模型”；3) 选择 provider 和 model；4) 重新打开模板弹层，此时“加入范围”会显示该模型。",
         templateScopeSettings: "设置模型范围",
+        templateAddTarget: "加入：{scope}",
+        templateModelConfirm:
+          "此模板推荐模型层。仍然添加会把它写入{scope}，保存后影响该范围内的所有模型；要限定模型，请先设置模型范围。",
+        templateModelConfirmAdd: "仍然添加",
         templateAdd: "添加",
         templatePreview: "查看正文",
         templatePreviewTitle: "模板正文",
@@ -254,9 +268,13 @@ window.__ModuleLoader__.load({
         scopeHint:
           "The global layer applies to every request; provider and model layers override narrower scopes.",
         scopeSettings: "View scope settings",
+        scopeGuideOrder:
+          "Order: choose the scope first, then create or add a template. Every create, edit, delete and template add on this page writes to that scope; switching scope discards the draft.",
+        scopeGuideModel:
+          "To limit to a model: choose Model under Applies to, choose provider/model, then add the template. Adding a template never asks for a model separately.",
         sectionScope: "Scope: {scope}",
         sectionModelRecommended:
-          "This Section's template is recommended for the model layer; the current scope is {scope}, so it applies to every model in that scope. To limit it to one model, switch scope and choose a provider/model.",
+          "This Section's template is recommended for the model layer; the current scope is {scope}, so it affects every model there. To limit it: set Applies to to Model at the top, choose a provider/model, and add it again; switching discards the current draft, and a saved global Section is not migrated automatically.",
         scopeSwitchConfirm:
           "Switch to {scope}? The current draft will be discarded and that scope reloaded.",
         scopeSwitchConfirmAction: "Switch scope",
@@ -292,7 +310,13 @@ window.__ModuleLoader__.load({
           "The host cannot prove the agent's actual shell dialect, so this conditional template will not match after it is added. Clear the PowerShell condition in the Section editor, or wait for host dialect support.",
         templateScopeWarning:
           "Some templates are recommended for the model layer; this scope is broader, so they affect more requests. To limit them to a model, switch scope first; switching discards the current draft.",
+        templateScopeSteps:
+          "Order: 1) close this dialog; 2) set Applies to to Model at the top; 3) choose provider and model; 4) reopen the template dialog; Add to shows that model.",
         templateScopeSettings: "Set model scope",
+        templateAddTarget: "Adds to: {scope}",
+        templateModelConfirm:
+          "This template is recommended for the model layer. Adding it anyway writes to {scope} and, once saved, affects every model in that scope; set the model scope first to limit it.",
+        templateModelConfirmAdd: "Add anyway",
         templateAdd: "Add",
         templatePreview: "View body",
         templatePreviewTitle: "Template body",
@@ -554,6 +578,7 @@ window.__ModuleLoader__.load({
       const [replaceConfirm, setReplaceConfirm] = React.useState(false);
       const [replacedTemplateId, setReplacedTemplateId] = React.useState("");
       const [addedTemplateId, setAddedTemplateId] = React.useState("");
+      const [confirmTemplateId, setConfirmTemplateId] = React.useState("");
       const [lang, setLang] = React.useState(() => activeLocale(locale));
       const [saving, setSaving] = React.useState(false);
       const [failed, setFailed] = React.useState(false);
@@ -663,6 +688,7 @@ window.__ModuleLoader__.load({
       const sections = usable?.sections ?? [];
       const changeTarget = (next) => {
         setPendingTarget(null);
+        setConfirmTemplateId("");
         if (targetKey(next) === targetKey(target)) return;
         setStaged({});
         setOpen("");
@@ -848,6 +874,7 @@ window.__ModuleLoader__.load({
         setPreviewId("");
         setReplaceConfirm(false);
         setReplacedTemplateId("");
+        setConfirmTemplateId("");
         setTemplatesOpen(true);
       };
       const closeTemplates = () => {
@@ -856,6 +883,7 @@ window.__ModuleLoader__.load({
         setPreviewId("");
         setReplaceConfirm(false);
         setReplacedTemplateId("");
+        setConfirmTemplateId("");
       };
       closeTemplatesRef.current = closeTemplates;
       const goToScopeSettings = () => {
@@ -1389,6 +1417,12 @@ window.__ModuleLoader__.load({
                 ),
             ),
             h("p", { className: "pl-hint" }, t("scopeHint")),
+            h(
+              "div",
+              { className: "pl-guide" },
+              h("p", null, t("scopeGuideOrder")),
+              h("p", null, t("scopeGuideModel")),
+            ),
             pendingTarget &&
               h(
                 "div",
@@ -1724,6 +1758,7 @@ window.__ModuleLoader__.load({
                           { className: "pl-inlineWarn", role: "note" },
                           t("templateScopeWarning"),
                         ),
+                        h("p", { className: "pl-hint" }, t("templateScopeSteps")),
                         h(
                           "button",
                           {
@@ -1760,6 +1795,9 @@ window.__ModuleLoader__.load({
                             );
                             const modified =
                               local && !templateMatchesEntry(entry, template);
+                            const needsScopeConfirm =
+                              template.recommendedScope === "model" &&
+                              target.scope !== "model";
                             const state = entry
                               ? local
                                 ? modified
@@ -1804,6 +1842,15 @@ window.__ModuleLoader__.load({
                                       ),
                                     ),
                                   ),
+                                h(
+                                  "p",
+                                  { className: "pl-templateTarget" },
+                                  interpolate(
+                                    t("templateAddTarget"),
+                                    "scope",
+                                    scopeLabel(target),
+                                  ),
+                                ),
                               ),
                               h(
                                 "div",
@@ -1825,7 +1872,17 @@ window.__ModuleLoader__.load({
                                         className: "pl-button",
                                         disabled: saving,
                                         "aria-label": `${t("templateAdd")}: ${title}`,
-                                        onClick: () => addTemplate(template),
+                                        onClick: () => {
+                                          if (
+                                            needsScopeConfirm &&
+                                            confirmTemplateId !== template.id
+                                          ) {
+                                            setConfirmTemplateId(template.id);
+                                            return;
+                                          }
+                                          setConfirmTemplateId("");
+                                          addTemplate(template);
+                                        },
                                       },
                                       t("templateAdd"),
                                     ),
@@ -1844,6 +1901,54 @@ window.__ModuleLoader__.load({
                                   t("templatePreview"),
                                 ),
                               ),
+                              confirmTemplateId === template.id &&
+                                h(
+                                  "div",
+                                  { className: "pl-templateConfirm", role: "alert" },
+                                  h(
+                                    "p",
+                                    { className: "pl-inlineWarn" },
+                                    interpolate(
+                                      t("templateModelConfirm"),
+                                      "scope",
+                                      scopeLabel(target),
+                                    ),
+                                  ),
+                                  h(
+                                    "div",
+                                    { className: "pl-actions" },
+                                    h(
+                                      "button",
+                                      {
+                                        type: "button",
+                                        className: "pl-button",
+                                        onClick: () => setConfirmTemplateId(""),
+                                      },
+                                      t("cancel"),
+                                    ),
+                                    h(
+                                      "button",
+                                      {
+                                        type: "button",
+                                        className: "pl-button",
+                                        onClick: goToScopeSettings,
+                                      },
+                                      t("templateScopeSettings"),
+                                    ),
+                                    h(
+                                      "button",
+                                      {
+                                        type: "button",
+                                        className: "pl-button",
+                                        onClick: () => {
+                                          setConfirmTemplateId("");
+                                          addTemplate(template);
+                                        },
+                                      },
+                                      t("templateModelConfirmAdd"),
+                                    ),
+                                  ),
+                                ),
                             );
                           }),
                         ),
