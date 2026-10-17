@@ -1,18 +1,21 @@
-import { test } from 'node:test'
+import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
+import { rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { ConfigurationFiles } from '../src/adapter/files.js'
 import { createConfigurationParser } from '../src/core/configuration.js'
 import { PromptLayersRuntime } from '../src/adapter/runtime.js'
 import { PromptLayersApplication, loadTemplates } from '../src/adapter/application.js'
 
+const BASE = resolve('../../tmp/prompt-layers-application-tests')
+after(() => { rmSync(BASE, { recursive: true, force: true }) })
+
 const parse = createConfigurationParser(JSON.parse(await readFile(new URL('../prompt-layers.schema.json', import.meta.url), 'utf8')))
 const templates = await loadTemplates()
 async function fixture() {
-  const base = resolve('../../tmp/prompt-layers-application-tests')
-  await mkdir(base, { recursive: true })
-  const root = await mkdtemp(`${base}/case-`)
+  await mkdir(BASE, { recursive: true })
+  const root = await mkdtemp(`${BASE}/case-`)
   const files = new ConfigurationFiles(root, parse)
   const runtime = new PromptLayersRuntime(files)
   await runtime.reload()
