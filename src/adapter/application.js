@@ -131,6 +131,10 @@ export class PromptLayersApplication {
           await this.removeSection(request);
           await this.runtime.reload();
           return this.workspace(request.target);
+        case "commit":
+          await this.commit(request);
+          await this.runtime.reload();
+          return this.workspace(request.target);
         default:
           throw new Error("Unknown operation");
       }
@@ -159,32 +163,66 @@ export class PromptLayersApplication {
     return { ...view, revision: disk.revision, files: disk.files, target, sections, identities };
   }
 
+  /** Resolve one target's document node inside a loaded snapshot. */
+  documentFor(disk, target) {
+    const existing = disk.documents.find(
+      ({ data }) =>
+        data.scope === target.scope &&
+        data.provider === target.provider &&
+        data.model === target.model,
+    );
+    const identity = { apiVersion: "prompt-layers/v1", ...target };
+    const path =
+      existing?.path ??
+      (target.scope === "global"
+        ? "global.yaml"
+        : `${target.scope === "model" ? "models" : "providers"}/${digest(JSON.stringify(identity))}.yaml`);
+    const file = disk.files.find((item) => item.path === path);
+    const yaml = parseDocument(file?.text ?? stringify(identity));
+    return { path, file, yaml };
+  }
+
   async editingDocument(request) {
     validateTarget(request.target);
     const disk = await this.files.load();
     if (disk.revision !== request.expectedRevision)
       throw new Error("REVISION_CONFLICT: refresh before editing a Section");
-    const existing = disk.documents.find(
-      ({ data }) =>
-        data.scope === request.target.scope &&
-        data.provider === request.target.provider &&
-        data.model === request.target.model,
-    );
-    const identity = { apiVersion: "prompt-layers/v1", ...request.target };
-    const path =
-      existing?.path ??
-      (request.target.scope === "global"
-        ? "global.yaml"
-        : `${request.target.scope === "model" ? "models" : "providers"}/${digest(JSON.stringify(identity))}.yaml`);
-    const file = disk.files.find((item) => item.path === path);
-    const yaml = parseDocument(file?.text ?? stringify(identity));
-    return { disk, path, file, yaml };
+    return { disk, ...this.documentFor(disk, request.target) };
   }
 
-  /** Save a current-scope definition; inherited Markdown remains unchanged. */
-  async saveSection(request) {
-    const { disk, path, file, yaml } = await this.editingDocument(request);
-    if (typeof request.id !== "string" || !request.id.length || !['custom', 'native'].includes(request.kind))
+  /** Validate, hydrate and save one edited document against its original revision. */
+  async writeDocument(disk, path, file, text, target) {
+    const parsed = this.parse(text, path);
+    for (const section of [
+      ...(parsed.sections ?? []),
+      ...Object.values(parsed.existing ?? {}),
+    ]) {
+      if (section.contentFile)
+        section.content = (await this.files.read(section.contentFile))?.text;
+    }
+    const candidate = disk.documents
+      .filter((document) => document.path !== path)
+      .concat({ path, data: parsed });
+    validateDocuments(candidate);
+    const native = [...this.runtime.catalogs.values()].at(-1)?.sections ?? [];
+    if (native.length)
+      for (const role of ["main", "delegated"]) {
+        composeLayers(documentsForTarget(candidate, target), native, {
+          ...target,
+          role,
+          powershell: false,
+        });
+      }
+    await this.files.save(path, text, file?.revision ?? null);
+  }
+
+  /** Merge one Section definition into the target document node. */
+  applySectionSave(yaml, path, request) {
+    if (
+      typeof request.id !== "string" ||
+      !request.id.length ||
+      !["custom", "native"].includes(request.kind)
+    )
       throw new Error("Valid Section ID and kind are required");
     const allowed = [
       "content",
@@ -227,40 +265,16 @@ export class PromptLayersApplication {
         yaml.addIn(["sections"], value);
       } else yaml.setIn(["sections", index], yaml.createNode(value));
     }
-    const parsed = this.parse(yaml.toString(), path);
-    for (const section of [
-      ...(parsed.sections ?? []),
-      ...Object.values(parsed.existing ?? {}),
-    ]) {
-      if (section.contentFile)
-        section.content = (await this.files.read(section.contentFile))?.text;
-    }
-    const candidate = disk.documents
-      .filter((document) => document.path !== path)
-      .concat({ path, data: parsed });
-    validateDocuments(candidate);
-    const native = [...this.runtime.catalogs.values()].at(-1)?.sections ?? [];
-    if (native.length)
-      for (const role of ["main", "delegated"]) {
-        composeLayers(documentsForTarget(candidate, request.target), native, {
-          ...request.target,
-          role,
-          powershell: false,
-        });
-      }
-    await this.files.save(path, yaml.toString(), file?.revision ?? null);
   }
 
-  /** Remove the local declaration and let lower layers become visible again. */
-  async removeSection(request) {
-    const { disk, path, file, yaml } = await this.editingDocument(request);
+  /** Drop one local declaration so lower layers become visible again. */
+  applySectionRemove(yaml, path, request) {
     if (
       typeof request.id !== "string" ||
       !["custom", "native"].includes(request.kind)
     )
       throw new Error("Invalid Section identity");
-    if (!file) throw new Error("No current-scope definition exists");
-    const data = this.parse(file.text, path);
+    const data = this.parse(yaml.toString(), path);
     if (request.kind === "native") {
       if (!yaml.hasIn(["existing", request.id]))
         throw new Error("No current-scope definition exists");
@@ -272,17 +286,47 @@ export class PromptLayersApplication {
       if (index < 0) throw new Error("No current-scope definition exists");
       yaml.deleteIn(["sections", index]);
     }
-    const updated = this.parse(yaml.toString(), path);
-    for (const section of [...(updated.sections ?? []), ...Object.values(updated.existing ?? {})]) {
-      if (section.contentFile) section.content = (await this.files.read(section.contentFile))?.text;
+  }
+
+  /** Save a current-scope definition; inherited Markdown remains unchanged. */
+  async saveSection(request) {
+    const { disk, path, file, yaml } = await this.editingDocument(request);
+    this.applySectionSave(yaml, path, request);
+    await this.writeDocument(disk, path, file, yaml.toString(), request.target);
+  }
+
+  /** Remove the local declaration and let lower layers become visible again. */
+  async removeSection(request) {
+    const { disk, path, file, yaml } = await this.editingDocument(request);
+    this.applySectionRemove(yaml, path, request);
+    await this.writeDocument(disk, path, file, yaml.toString(), request.target);
+  }
+
+  /** Write every staged Section change in one revision-fenced document save. */
+  async commit(request) {
+    validateTarget(request.target);
+    if (
+      !Array.isArray(request.changes) ||
+      request.changes.length === 0 ||
+      request.changes.length > 64
+    )
+      throw new Error("Select 1–64 Section changes");
+    const disk = await this.files.load();
+    if (disk.revision !== request.expectedRevision)
+      throw new Error("REVISION_CONFLICT: refresh before saving");
+    const { path, file, yaml } = this.documentFor(disk, request.target);
+    const seen = new Set();
+    for (const change of request.changes) {
+      if (!change || typeof change !== "object" || Array.isArray(change))
+        throw new Error("Invalid Section change");
+      const key = `${change.kind}:${change.id}`;
+      if (seen.has(key)) throw new Error("Duplicate Section change");
+      seen.add(key);
+      if (change.op === "remove") this.applySectionRemove(yaml, path, change);
+      else if (change.op === "save") this.applySectionSave(yaml, path, change);
+      else throw new Error("Unknown Section change");
     }
-    const candidate = disk.documents
-      .filter((document) => document.path !== path)
-      .concat({ path, data: updated });
-    validateDocuments(candidate);
-    const native = [...this.runtime.catalogs.values()].at(-1)?.sections ?? [];
-    if (native.length) composeLayers(documentsForTarget(candidate, request.target), native, { ...request.target });
-    await this.files.save(path, yaml.toString(), file.revision);
+    await this.writeDocument(disk, path, file, yaml.toString(), request.target);
   }
 
   async preview(request) {

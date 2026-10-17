@@ -92,3 +92,37 @@ test('UI can recover invalid YAML using raw file reads while preserving native f
   assert.equal(repaired.status.phase, 'empty')
   runtime.dispose()
 })
+
+test('one commit writes every staged Section change under one revision fence', async () => {
+  const { files, application, runtime } = await fixture()
+  await application.execute({ action: 'import', templateIds: [templates[0].id], targets: [{ scope: 'global' }], expectedRevision: (await application.view()).revision })
+  const target = { scope: 'global' }
+  const start = await application.workspace(target)
+  const committed = await application.execute({
+    action: 'commit',
+    target,
+    expectedRevision: start.revision,
+    changes: [
+      { op: 'save', id: templates[0].sectionId, kind: 'custom', fields: { content: 'rewritten in one save', enabled: true } },
+      { op: 'save', id: 'custom:second', kind: 'custom', fields: { content: 'second section' } },
+      { op: 'remove', id: 'custom:absent-but-listed', kind: 'custom' },
+    ],
+  }).catch((error) => error)
+  assert.match(committed.message, /No current-scope definition exists/)
+  const document = await files.load()
+  assert.equal(document.documents[0].data.sections.length, 1, 'a refused commit writes nothing')
+  const after = await application.workspace(target)
+  const applied = await application.execute({
+    action: 'commit',
+    target,
+    expectedRevision: after.revision,
+    changes: [
+      { op: 'save', id: templates[0].sectionId, kind: 'custom', fields: { content: 'rewritten in one save', enabled: true } },
+      { op: 'save', id: 'custom:second', kind: 'custom', fields: { content: 'second section' } },
+    ],
+  })
+  assert.equal(applied.sections.filter((section) => section.local).length, 2)
+  assert.equal(applied.sections.find((section) => section.id === 'custom:second').content, 'second section')
+  await assert.rejects(() => application.execute({ action: 'commit', target, expectedRevision: after.revision, changes: [{ op: 'save', id: 'custom:third', kind: 'custom', fields: { content: 'stale' } }] }), /REVISION_CONFLICT/)
+  runtime.dispose()
+})

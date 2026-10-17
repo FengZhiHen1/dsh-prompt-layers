@@ -9,7 +9,7 @@
 | 项目结构设计.md | 模块职责、依赖方向 |
 | technical-details/提示词段机制.md | 文件、继承、排序、快照与观察语义 |
 | technical-details/部署.md | 本次验证与部署证据 |
-| technical-details/界面与编辑工作区.md | 已确认交互、范围导航、行内编辑和覆盖恢复 |
+| technical-details/界面与编辑工作区.md | SettingsForm 形态、适用范围导航、草稿与一次保存 |
 | decisions/DSR-006-声明式分层重构.md | 更名映射、旧接口撤销、宿主门槛决策 |
 | TODO.md | 唯一未完成清单 |
 
