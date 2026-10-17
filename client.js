@@ -62,6 +62,7 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-details>summary::-webkit-details-marker{display:none}
 .dsh-pl .pl-details>summary:hover{color:var(--dsw-alias-label-primary)}
 .dsh-pl .pl-footer{display:flex;align-items:center;gap:8px;padding-top:16px}
+.dsh-pl .pl-rowFooter{display:flex;justify-content:flex-end;padding:8px 0 0}
 .dsh-pl .pl-failed{flex:1;min-width:0;margin:0;font-size:12px;line-height:1.5;color:var(--dsw-alias-label-error)}
 .dsh-pl .pl-save{appearance:none;border:1px solid transparent;border-radius:var(--dsw-radius-md);padding:5px 14px;font:inherit;font-size:13px;line-height:1.5;cursor:pointer;background:var(--dsw-alias-label-primary);color:var(--dsw-alias-bg-layer-3)}
 .dsh-pl .pl-save:disabled{opacity:.4;cursor:default}
@@ -811,6 +812,20 @@ window.__ModuleLoader__.load({
                     ),
                   ),
                 ),
+              h(
+                "div",
+                { className: "pl-rowFooter" },
+                h(
+                  "button",
+                  {
+                    type: "button",
+                    className: "pl-save",
+                    disabled: !dirty || invalid || saving,
+                    onClick: save,
+                  },
+                  t(saving ? "saving" : "save"),
+                ),
+              ),
             ),
         );
       };

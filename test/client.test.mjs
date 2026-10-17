@@ -80,11 +80,14 @@ test('the settings form keeps Save disabled until a staged edit is valid', async
   rowOpen(view).props.onClick()
   view = ui.render()
   assert.equal(textarea(view).props.value, '')
+  assert.equal(find(view, byClass('pl-save')).length, 2, 'the open row offers the same save action')
   assert.equal(saveButton(view).props.disabled, true, 'an empty body blocks the save')
 
   textarea(view).props.onChange({ target: { value: 'New guidance' } })
   view = ui.render()
-  assert.equal(saveButton(view).props.disabled, false, 'a valid staged edit enables the save')
+  const buttons = find(view, byClass('pl-save'))
+  assert.equal(buttons[0].props.disabled, false, 'a valid staged edit enables the row save')
+  assert.equal(buttons[1].props.disabled, false, 'the footer save follows the same state')
 })
 
 test('saving writes one revision-fenced commit and reports no success message', async () => {
@@ -123,7 +126,7 @@ test('a refused save keeps the draft and shows the form failure line', async () 
   textarea(view).props.onChange({ target: { value: 'New guidance' } })
   view = ui.render()
 
-  await saveButton(view).props.onClick()
+  await find(ui.render(), byClass('pl-save'))[1].props.onClick()
   view = ui.render()
   assert.equal(find(view, byClass('pl-failed')).length, 1)
   assert.equal(saveButton(view).props.disabled, false, 'the retained draft can be saved again')
