@@ -11,7 +11,7 @@
 | technical-details/部署.md | 本次验证与部署证据 |
 | technical-details/界面与编辑工作区.md | SettingsForm 形态、适用范围导航、草稿与一次保存 |
 | decisions/DSR-006-声明式分层重构.md | 更名映射、旧接口撤销、宿主门槛决策（模型层部分由 DSR-007 取代） |
-| decisions/DSR-007-模型层声明路由激活.md | 模型层按声明路由激活、pwsh 工具判定、主统筹 global |
+| decisions/DSR-007-模型层声明路由激活.md | 模型层按声明路由激活、pwsh 工具判定、主统筹限定弱模型 |
 | TODO.md | 唯一未完成清单 |
 
 七份批准正文的发行权威为 templates/*.md，模板来源和版本见该目录索引。开发不能依赖管理仓库被忽略的 references/ 作为安装后必需资源。

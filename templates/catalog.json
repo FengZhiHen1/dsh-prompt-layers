@@ -52,7 +52,7 @@
     "descriptionEn": "Main-Agent coordination extension: acceptance boundaries for overall delivery, the threshold for delegating work, subtask objectives and file ownership, parallel-write coordination, review of delegated evidence, and the final user report. Applies only to the main Agent and does not replace the shared execution core.",
     "file": "flash-main-coordination.md",
     "sectionId": "custom:flash-main-coordination",
-    "recommendedScope": "global",
+    "recommendedScope": "model",
     "when": {
       "agent": {
         "role": "main"

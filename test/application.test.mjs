@@ -45,10 +45,10 @@ test('shipped template display metadata is bilingual and complete', () => {
   }
 })
 
-test('the main coordination template recommends the global main-Agent scope', () => {
+test('the main coordination template is model-scoped and limited to the main Agent', () => {
   const template = templates.find((item) => item.sectionId === 'custom:flash-main-coordination')
   assert.ok(template)
-  assert.equal(template.recommendedScope, 'global')
+  assert.equal(template.recommendedScope, 'model')
   assert.deepEqual(template.when, { agent: { role: 'main' } })
 })
 

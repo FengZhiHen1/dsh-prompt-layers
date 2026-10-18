@@ -12,7 +12,7 @@
 | `anti-unwarranted-defense.md` | `custom:anti-unwarranted-defense` | global | 无（全部主/子 Agent） | `05_反无依据防御提示词候选.md` §2（2026-10-16） |
 | `technical-communication.md` | `custom:technical-communication` | global | 无（按输出体裁自限） | `06_技术语言规范研究与候选.md` §9（2026-10-16） |
 | `flash-execution-core.md` | `custom:flash-execution-core` | model | 无 Agent 角色限制（主/子均适用） | `11_Flash主子Agent分层提示词候选.md` §2（2026-10-17） |
-| `flash-main-coordination.md` | `custom:flash-main-coordination` | global | `when.agent.role: main` | `11_Flash主子Agent分层提示词候选.md` §3（2026-10-17） |
+| `flash-main-coordination.md` | `custom:flash-main-coordination` | model（仅弱模型） | `when.agent.role: main` | `11_Flash主子Agent分层提示词候选.md` §3（2026-10-17） |
 | `pwsh-guidance.md` | `custom:pwsh-guidance` | global | `when.tools.powershell: true` | `15_PowerShell补充提示词精简稿与对照验收.md` §2（469 词，2026-10-17） |
 | `credential-aware-automation.md` | `custom:credential-aware-automation` | global | 无（全部主/子 Agent） | `19_凭证上下文实测复盘与最小化优化方案.md` §3（2026-10-17） |
 
