@@ -249,7 +249,13 @@ test('a body that differs from its template shows a warning, diff and explicit r
     && node.children?.[0] === 'templateModified')[0]
   assert.ok(stateTag)
   assert.equal(stateTag.props['data-tone'], 'warning')
-  assert.equal(stateTag.props.title, 'templateModifiedHint')
+  assert.equal(stateTag.props.title, undefined)
+  const stateInfo = find(view, (node) => node.type === 'button'
+    && node.props?.['aria-label'] === 'info: templateModified')[0]
+  assert.ok(stateInfo)
+  stateInfo.props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateModifiedHint').length)
 
   templatePreviewButton(view).props.onClick()
   view = ui.render()
@@ -319,13 +325,44 @@ test('the Section editor and list label show the current scope', async () => {
     && node.children?.[0] === 'scopeSettings').length)
 })
 
-test('the page states the scope and template add order', async () => {
+test('the page states the scope and template add order in info', async () => {
   const ui = await mount(empty)
-  const view = ui.render()
-  assert.ok(find(view, byClass('pl-guide')).length)
+  let view = ui.render()
+  assert.equal(find(view, byClass('pl-guide')).length, 0)
+  assert.equal(find(view, (node) => node.children?.[0] === 'scopeShortHint').length, 1)
+  assert.equal(find(view, (node) => node.children?.[0] === 'scopeGuideOrder').length, 0)
+  const button = find(view, (node) => node.type === 'button'
+    && node.props?.['aria-label'] === 'info: scope')[0]
+  assert.ok(button)
+  assert.equal(button.props['aria-expanded'], false)
+  button.props.onClick()
+  view = ui.render()
+  const panel = find(view, byClass('pl-info'))[0]
+  assert.ok(panel)
+  assert.equal(panel.props.role, 'region')
+  assert.ok(find(view, (node) => node.children?.[0] === 'scopeHint').length)
   assert.ok(find(view, (node) => node.children?.[0] === 'scopeGuideOrder').length)
   assert.ok(find(view, (node) => node.children?.[0] === 'scopeGuideModel').length)
-  assert.equal(find(view, (node) => node.children?.[0] === 'scopeHint').length, 1)
+  assert.equal(find(view, (node) => node.props?.['aria-label'] === 'scope')[0]
+    .props['aria-describedby'], panel.props.id)
+})
+
+test('the sections label keeps its save hint in info', async () => {
+  const ui = await mount(empty)
+  let view = ui.render()
+  assert.equal(find(view, (node) => node.children?.[0] === 'sectionsHint').length, 0)
+  const button = find(view, (node) => node.type === 'button'
+    && node.props?.['aria-label'] === 'info: sections')[0]
+  assert.ok(button)
+  const icon = button.children[0]
+  assert.equal(icon.type, 'svg')
+  assert.equal(icon.props.width, 12)
+  button.props.onClick()
+  view = ui.render()
+  const panel = find(view, byClass('pl-info'))[0]
+  assert.ok(panel)
+  assert.equal(panel.props.role, 'region')
+  assert.ok(find(view, (node) => node.children?.[0] === 'sectionsHint').length)
 })
 
 test('the picker states each add target and confirms a model template at a broader scope', async () => {
@@ -333,8 +370,15 @@ test('the picker states each add target and confirms a model template at a broad
   let view = ui.render()
   templateTrigger(view).props.onClick()
   view = ui.render()
-  assert.ok(find(view, (node) => node.children?.[0] === 'templateScopeSteps').length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateScopeShort').length)
   assert.ok(find(view, (node) => node.children?.[0] === 'templateAddTarget').length)
+  const scopeInfo = find(view, (node) => node.type === 'button'
+    && node.props?.['aria-label'] === 'info: templateScopeLabel')[0]
+  assert.ok(scopeInfo)
+  scopeInfo.props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateScopeWarning').length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateScopeSteps').length)
 
   const adds = find(view, (node) => node.type === 'button'
     && node.children?.includes?.('templateAdd'))
@@ -373,6 +417,13 @@ test('a model-recommended template section warns at a broader scope', async () =
   rowOpen(view).props.onClick()
   view = ui.render()
   assert.ok(find(view, (node) => node.props?.className === 'pl-rowWarning').length)
+  assert.ok(find(view, (node) => node.children?.[0] === 'sectionModelRecommendedShort').length)
+  assert.equal(find(view, (node) => node.children?.[0] === 'sectionModelRecommended').length, 0)
+  const rowInfo = find(view, (node) => node.type === 'button'
+    && node.props?.['aria-label'] === 'info: sectionScopeInfo')[0]
+  assert.ok(rowInfo)
+  rowInfo.props.onClick()
+  view = ui.render()
   assert.ok(find(view, (node) => node.children?.[0] === 'sectionModelRecommended').length)
   assert.ok(find(view, (node) => node.children?.[0] === 'scopeSettings').length)
 
@@ -516,16 +567,29 @@ test('the picker warns when model-layer templates are added at a broader scope',
   let view = ui.render()
   templateTrigger(view).props.onClick()
   view = ui.render()
-  const warning = find(view, (node) => node.children?.[0] === 'templateScopeWarning')[0]
+  const warning = find(view, (node) => node.children?.[0] === 'templateScopeShort')[0]
   assert.ok(warning)
   assert.equal(warning.props.role, 'note')
+  assert.equal(find(view, (node) => node.children?.[0] === 'templateScopeWarning').length, 0)
+  const templateInfo = find(view, (node) => node.type === 'button'
+    && node.props?.['aria-label'] === 'info: templateScopeLabel')[0]
+  assert.ok(templateInfo)
+  templateInfo.props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.children?.[0] === 'templateScopeWarning').length)
   const modelTag = find(view, (node) => node.children?.includes?.('templateRecommendedModel'))[0]
   assert.equal(modelTag.props['data-tone'], 'warning')
   const globalTag = find(view, (node) => node.children?.includes?.('templateRecommendedGlobal'))[0]
   assert.equal(globalTag.props['data-tone'], 'outline')
   const pwshTag = find(view, (node) => node.children?.includes?.('templatePwshUnknown'))[0]
   assert.equal(pwshTag.props['data-tone'], 'warning')
-  assert.equal(pwshTag.props.title, 'templatePwshUnknownHint')
+  assert.equal(pwshTag.props.title, undefined)
+  const pwshInfo = find(view, (node) => node.type === 'button'
+    && node.props?.['aria-label'] === 'info: templatePwshUnknown')[0]
+  assert.ok(pwshInfo)
+  pwshInfo.props.onClick()
+  view = ui.render()
+  assert.ok(find(view, (node) => node.children?.[0] === 'templatePwshUnknownHint').length)
   assert.ok(find(view, (node) => node.children?.includes?.('templateMainOnly')).length)
 })
 

@@ -43,8 +43,14 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-linkButton:hover{text-decoration:underline}
 .dsh-pl .pl-scopeConfirm{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:.5px solid var(--dsw-alias-state-warn-primary);border-radius:var(--dsw-radius-md);background:color-mix(in srgb,var(--dsw-alias-state-warn-primary) 6%,transparent)}
 .dsh-pl .pl-scopeGuidance{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:0 24px}
-.dsh-pl .pl-guide{display:flex;flex-direction:column;gap:3px;padding:8px 10px;border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-3);color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}
-.dsh-pl .pl-guide p{margin:0}
+.dsh-pl .pl-dialogScopeRow{display:flex;align-items:center;gap:6px}
+.dsh-pl .pl-dialogScopeRow .pl-dialogScope{margin:0}
+.dsh-pl .pl-infoButton{display:inline-flex;flex:none;align-items:center;justify-content:center;align-self:center;width:24px;height:24px;padding:0;border:0;border-radius:var(--dsw-radius-sm);background:transparent;color:var(--dsw-alias-label-secondary);cursor:pointer}
+.dsh-pl .pl-infoButton:hover,.dsh-pl .pl-infoButton[aria-expanded="true"]{background:var(--dsw-alias-bg-layer-4)}
+.dsh-pl .pl-info{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:.5px solid var(--dsw-alias-border-l2);border-radius:var(--dsw-radius-md);background:var(--dsw-alias-bg-layer-3);color:var(--dsw-alias-label-secondary);font-size:12px;line-height:1.6}
+.dsh-pl .pl-info p{margin:0}
+.dsh-pl .pl-templateRow > .pl-info{grid-column:1/-1}
+.dsh-pl .pl-templateState{display:flex;align-items:center;justify-content:flex-end;gap:4px}
 .dsh-pl .pl-templateTarget{margin-top:2px;font-size:11px;line-height:17px;color:var(--dsw-alias-label-tertiary)}
 .dsh-pl .pl-templateConfirm{grid-column:1/-1;display:flex;flex-direction:column;gap:6px;padding:8px 10px;border:.5px solid var(--dsw-alias-state-warn-primary);border-radius:var(--dsw-radius-md);background:color-mix(in srgb,var(--dsw-alias-state-warn-primary) 6%,transparent)}
 .dsh-pl .pl-chev{flex:none;color:var(--dsw-alias-label-tertiary);transition:transform 160ms var(--ds-ease-in-out)}
@@ -78,7 +84,7 @@ window.__ModuleLoader__.load({
 .dsh-pl .pl-save{appearance:none;border:1px solid transparent;border-radius:var(--dsw-radius-md);padding:5px 14px;font:inherit;font-size:13px;line-height:1.5;cursor:pointer;background:var(--dsw-alias-label-primary);color:var(--dsw-alias-bg-layer-3)}
 .dsh-pl .pl-save:disabled{opacity:.4;cursor:default}
 .dsh-pl .pl-save:focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:1px}
-.dsh-pl :is(.pl-button,.pl-iconButton,.pl-linkButton,.pl-rowOpen,.pl-switchControl,.pl-dialogClose,.pl-templatePreview,.pl-primary,.pl-secondary,summary):focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
+.dsh-pl :is(.pl-button,.pl-iconButton,.pl-linkButton,.pl-infoButton,.pl-rowOpen,.pl-switchControl,.pl-dialogClose,.pl-templatePreview,.pl-primary,.pl-secondary,summary):focus-visible{outline:var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color,var(--dsw-alias-state-business-primary));outline-offset:2px}
 .dsh-pl :is(select,input,textarea):focus-visible{outline:none;border-color:var(--dsw-alias-state-business-primary)}
 .dsh-pl :is(input,textarea)[aria-invalid=true]{border-color:var(--dsw-alias-state-error-primary)}
 .dsh-pl .pl-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:16px;color:var(--dsw-alias-label-tertiary);overflow-wrap:anywhere}
@@ -141,13 +147,17 @@ window.__ModuleLoader__.load({
       zh: {
         summary: "按全局、供应商或模型范围管理提示词 Section，并从内置模板添加。",
         scope: "适用范围",
+        info: "说明",
         scopeHint: "全局层对全部请求生效；供应商与模型层只覆盖更具体的范围。",
+        scopeShortHint: "所有改动写入当前范围；切换范围会丢弃草稿。",
         scopeSettings: "查看范围设置",
         scopeGuideOrder:
           "操作顺序：先选适用范围，再新建或从模板添加；本页的新增、编辑、删除和模板添加都写入当前范围，切换范围会丢弃草稿。",
         scopeGuideModel:
           "要限定到模型：适用范围选“模型” → 选择 provider/model → 再添加模板；模板添加不会另行询问模型。",
         sectionScope: "范围：{scope}",
+        sectionScopeInfo: "当前范围",
+        sectionModelRecommendedShort: "模板推荐模型层",
         sectionModelRecommended:
           "此 Section 的模板推荐模型层；当前为 {scope}，保存后会影响该范围内的所有模型。要限定模型：将顶部适用范围改为“模型”，选择 provider/model，再重新添加；切换会丢弃当前草稿，已保存的全局 Section 不会自动迁移。",
         scopeSwitchConfirm:
@@ -168,6 +178,8 @@ window.__ModuleLoader__.load({
           "模板会立即作为当前范围的新 Section 加入草稿；保存后生效。",
         empty: "当前范围暂无 Section。可新建空白 Section，或从模板添加。",
         templateScopeLine: "加入范围：{scope}",
+        templateScopeLabel: "加入范围",
+        templateScopeShort: "当前范围较宽；模型层推荐模板会影响更多请求。",
         templateAddedNotice: "已加入草稿：{title}；保存后生效。",
         templateAdded: "已添加",
         templateModified: "已添加 · 与当前模板不同",
@@ -189,7 +201,7 @@ window.__ModuleLoader__.load({
         templateScopeSettings: "设置模型范围",
         templateAddTarget: "加入：{scope}",
         templateModelConfirm:
-          "此模板推荐模型层。仍然添加会把它写入{scope}，保存后影响该范围内的所有模型；要限定模型，请先设置模型范围。",
+          "将加入{scope}，保存后影响该范围内的所有模型。仍要添加？",
         templateModelConfirmAdd: "仍然添加",
         templateAdd: "添加",
         templatePreview: "查看正文",
@@ -265,14 +277,19 @@ window.__ModuleLoader__.load({
         summary:
           "Manage prompt Sections across global, provider and model scopes, with built-in templates.",
         scope: "Applies to",
+        info: "Details",
         scopeHint:
           "The global layer applies to every request; provider and model layers override narrower scopes.",
+        scopeShortHint:
+          "All changes write to the current scope; switching discards the draft.",
         scopeSettings: "View scope settings",
         scopeGuideOrder:
           "Order: choose the scope first, then create or add a template. Every create, edit, delete and template add on this page writes to that scope; switching scope discards the draft.",
         scopeGuideModel:
           "To limit to a model: choose Model under Applies to, choose provider/model, then add the template. Adding a template never asks for a model separately.",
         sectionScope: "Scope: {scope}",
+        sectionScopeInfo: "Current scope",
+        sectionModelRecommendedShort: "Template recommends the model layer",
         sectionModelRecommended:
           "This Section's template is recommended for the model layer; the current scope is {scope}, so it affects every model there. To limit it: set Applies to to Model at the top, choose a provider/model, and add it again; switching discards the current draft, and a saved global Section is not migrated automatically.",
         scopeSwitchConfirm:
@@ -293,6 +310,9 @@ window.__ModuleLoader__.load({
           "Templates join the draft as new Sections in this scope immediately; save to apply.",
         empty: "No Sections in this scope. Add a blank Section or use a template.",
         templateScopeLine: "Target scope: {scope}",
+        templateScopeLabel: "Target scope",
+        templateScopeShort:
+          "This scope is broader; model-layer templates affect more requests.",
         templateAddedNotice: "Added to the draft: {title}; save to apply.",
         templateAdded: "Added",
         templateModified: "Added · differs from current template",
@@ -315,7 +335,7 @@ window.__ModuleLoader__.load({
         templateScopeSettings: "Set model scope",
         templateAddTarget: "Adds to: {scope}",
         templateModelConfirm:
-          "This template is recommended for the model layer. Adding it anyway writes to {scope} and, once saved, affects every model in that scope; set the model scope first to limit it.",
+          "This adds to {scope} and affects every model there once saved. Add anyway?",
         templateModelConfirmAdd: "Add anyway",
         templateAdd: "Add",
         templatePreview: "View body",
@@ -579,6 +599,7 @@ window.__ModuleLoader__.load({
       const [replacedTemplateId, setReplacedTemplateId] = React.useState("");
       const [addedTemplateId, setAddedTemplateId] = React.useState("");
       const [confirmTemplateId, setConfirmTemplateId] = React.useState("");
+      const [openInfo, setOpenInfo] = React.useState("");
       const [lang, setLang] = React.useState(() => activeLocale(locale));
       const [saving, setSaving] = React.useState(false);
       const [failed, setFailed] = React.useState(false);
@@ -664,6 +685,60 @@ window.__ModuleLoader__.load({
           : value.scope === "provider"
             ? `${t("provider")} · ${value.provider || t("choose")}`
             : `${value.provider || t("choose")} / ${value.model || t("choose")}`;
+      const infoId = (key) =>
+        `dsh-pl-info-${String(key).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+      const infoIcon = () =>
+        h(
+          "svg",
+          {
+            width: 12,
+            height: 12,
+            viewBox: "0 0 24 24",
+            fill: "none",
+            "aria-hidden": "true",
+            focusable: "false",
+          },
+          h("circle", {
+            cx: 12,
+            cy: 12,
+            r: 9,
+            stroke: "currentColor",
+            strokeWidth: 1.6,
+          }),
+          h("path", {
+            d: "M12 10.6v6",
+            stroke: "currentColor",
+            strokeWidth: 1.8,
+            strokeLinecap: "round",
+          }),
+          h("circle", { cx: 12, cy: 7.4, r: 1.1, fill: "currentColor" }),
+        );
+      const infoButton = (key, label) =>
+        h(
+          "button",
+          {
+            type: "button",
+            className: "pl-infoButton",
+            "aria-expanded": openInfo === key,
+            "aria-controls": infoId(key),
+            "aria-label": `${t("info")}: ${label}`,
+            onClick: () =>
+              setOpenInfo((current) => (current === key ? "" : key)),
+          },
+          infoIcon(),
+        );
+      const infoPanel = (key, label, children) =>
+        openInfo === key &&
+        h(
+          "div",
+          {
+            id: infoId(key),
+            className: "pl-info",
+            role: "region",
+            "aria-label": label,
+          },
+          children,
+        );
       const routes = data?.routes ?? [];
       const identities = data?.identities ?? [];
       const providers = [
@@ -689,6 +764,7 @@ window.__ModuleLoader__.load({
       const changeTarget = (next) => {
         setPendingTarget(null);
         setConfirmTemplateId("");
+        setOpenInfo("");
         if (targetKey(next) === targetKey(target)) return;
         setStaged({});
         setOpen("");
@@ -875,6 +951,7 @@ window.__ModuleLoader__.load({
         setReplaceConfirm(false);
         setReplacedTemplateId("");
         setConfirmTemplateId("");
+        setOpenInfo("");
         setTemplatesOpen(true);
       };
       const closeTemplates = () => {
@@ -884,6 +961,7 @@ window.__ModuleLoader__.load({
         setReplaceConfirm(false);
         setReplacedTemplateId("");
         setConfirmTemplateId("");
+        setOpenInfo("");
       };
       closeTemplatesRef.current = closeTemplates;
       const goToScopeSettings = () => {
@@ -1175,14 +1253,10 @@ window.__ModuleLoader__.load({
                 h(
                   "div",
                   { className: "pl-rowWarning", role: "note" },
-                  h(
-                    "span",
-                    null,
-                    interpolate(
-                      t("sectionModelRecommended"),
-                      "scope",
-                      scopeLabel(target),
-                    ),
+                  h("span", null, t("sectionModelRecommendedShort")),
+                  infoButton(
+                    `row-model-${entry.key}`,
+                    t("sectionScopeInfo"),
                   ),
                   h(
                     "button",
@@ -1192,6 +1266,20 @@ window.__ModuleLoader__.load({
                       onClick: focusScope,
                     },
                     t("scopeSettings"),
+                  ),
+                ),
+              modelRecommended &&
+                infoPanel(
+                  `row-model-${entry.key}`,
+                  t("sectionScopeInfo"),
+                  h(
+                    "p",
+                    null,
+                    interpolate(
+                      t("sectionModelRecommended"),
+                      "scope",
+                      scopeLabel(target),
+                    ),
                   ),
                 ),
               entry.isNew &&
@@ -1342,7 +1430,12 @@ window.__ModuleLoader__.load({
           h(
             "div",
             { className: "pl-field" },
-            h("span", { className: "pl-label" }, t("scope")),
+            h(
+              "div",
+              { className: "pl-labelRow" },
+              h("span", { className: "pl-label" }, t("scope")),
+              infoButton("scope", t("scope")),
+            ),
             h(
               "div",
               { className: "pl-controls" },
@@ -1354,6 +1447,8 @@ window.__ModuleLoader__.load({
                   {
                     value: target.scope,
                     "aria-label": t("scope"),
+                    "aria-describedby":
+                      openInfo === "scope" ? infoId("scope") : undefined,
                     ref: scopeSelectRef,
                     onChange: (event) =>
                       requestTarget(
@@ -1384,6 +1479,8 @@ window.__ModuleLoader__.load({
                     {
                       value: target.provider ?? "",
                       "aria-label": t("provider"),
+                      "aria-describedby":
+                        openInfo === "scope" ? infoId("scope") : undefined,
                       onChange: (event) =>
                         requestTarget({
                           ...target,
@@ -1406,6 +1503,8 @@ window.__ModuleLoader__.load({
                     {
                       value: target.model ?? "",
                       "aria-label": t("model"),
+                      "aria-describedby":
+                        openInfo === "scope" ? infoId("scope") : undefined,
                       onChange: (event) =>
                         requestTarget({ ...target, model: event.target.value }),
                     },
@@ -1416,13 +1515,12 @@ window.__ModuleLoader__.load({
                   ),
                 ),
             ),
-            h("p", { className: "pl-hint" }, t("scopeHint")),
-            h(
-              "div",
-              { className: "pl-guide" },
+            h("p", { className: "pl-hint" }, t("scopeShortHint")),
+            infoPanel("scope", t("scope"), [
+              h("p", null, t("scopeHint")),
               h("p", null, t("scopeGuideOrder")),
               h("p", null, t("scopeGuideModel")),
-            ),
+            ]),
             pendingTarget &&
               h(
                 "div",
@@ -1469,6 +1567,7 @@ window.__ModuleLoader__.load({
               "div",
               { className: "pl-labelRow" },
               h("span", { className: "pl-label" }, t("sections")),
+              infoButton("sections", t("sections")),
               h(
                 "span",
                 { className: "pl-tag", "data-tone": "outline" },
@@ -1476,6 +1575,7 @@ window.__ModuleLoader__.load({
               ),
               h("span", { className: "pl-count" }, String(rows.length)),
             ),
+            infoPanel("sections", t("sections"), h("p", null, t("sectionsHint"))),
             h(
               "ul",
               { className: "pl-rows" },
@@ -1513,7 +1613,6 @@ window.__ModuleLoader__.load({
                 t("templates"),
               ),
             ),
-            h("p", { className: "pl-hint" }, t("sectionsHint")),
             !templatesOpen &&
               addedNotice &&
               h("p", { className: "pl-hint", role: "status" }, addedNotice),
@@ -1623,19 +1722,32 @@ window.__ModuleLoader__.load({
                           { className: "pl-tag", "data-tone": "outline" },
                           `v${previewTemplate.version}`,
                         ),
-                      templateTags(previewTemplate).map(([tone, label, title]) =>
+                      templateTags(previewTemplate).map(([tone, label, hint]) =>
                         h(
-                          "span",
-                          {
-                            key: `${tone}:${label}`,
-                            className: "pl-tag",
-                            "data-tone": tone,
-                            title,
-                          },
-                          label,
+                          React.Fragment,
+                          { key: `${tone}:${label}` },
+                          h(
+                            "span",
+                            { className: "pl-tag", "data-tone": tone },
+                            label,
+                          ),
+                          hint &&
+                            infoButton(
+                              `preview-tag-${previewTemplate.id}-${label}`,
+                              label,
+                            ),
                         ),
                       ),
                     ),
+                    templateTags(previewTemplate)
+                      .filter(([, , hint]) => hint)
+                      .map(([, label, hint]) =>
+                        infoPanel(
+                          `preview-tag-${previewTemplate.id}-${label}`,
+                          label,
+                          h("p", null, hint),
+                        ),
+                      ),
                     h("p", { className: "pl-hint" }, t("templatePreviewHint")),
                     previewChanged &&
                       h(
@@ -1735,14 +1847,23 @@ window.__ModuleLoader__.load({
                       t("templatesHint"),
                     ),
                     h(
-                      "p",
-                      { className: "pl-dialogScope" },
-                      interpolate(
-                        t("templateScopeLine"),
-                        "scope",
-                        scopeLabel(target),
+                      "div",
+                      { className: "pl-dialogScopeRow" },
+                      h(
+                        "p",
+                        { className: "pl-dialogScope" },
+                        interpolate(
+                          t("templateScopeLine"),
+                          "scope",
+                          scopeLabel(target),
+                        ),
                       ),
+                      infoButton("templates", t("templateScopeLabel")),
                     ),
+                    infoPanel("templates", t("templateScopeLabel"), [
+                      h("p", null, t("templateScopeWarning")),
+                      h("p", null, t("templateScopeSteps")),
+                    ]),
                     target.scope !== "global" &&
                       usable?.capabilities?.modelLayers === false &&
                       h("p", { className: "pl-dialogNote" }, t("blocked")),
@@ -1756,9 +1877,8 @@ window.__ModuleLoader__.load({
                         h(
                           "p",
                           { className: "pl-inlineWarn", role: "note" },
-                          t("templateScopeWarning"),
+                          t("templateScopeShort"),
                         ),
-                        h("p", { className: "pl-hint" }, t("templateScopeSteps")),
                         h(
                           "button",
                           {
@@ -1829,17 +1949,33 @@ window.__ModuleLoader__.load({
                                   h(
                                     "div",
                                     { className: "pl-templateTags" },
-                                    tags.map(([tone, label, title]) =>
+                                    tags.map(([tone, label, hint]) =>
                                       h(
-                                        "span",
-                                        {
-                                          key: `${tone}:${label}`,
-                                          className: "pl-tag",
-                                          "data-tone": tone,
-                                          title,
-                                        },
-                                        label,
+                                        React.Fragment,
+                                        { key: `${tone}:${label}` },
+                                        h(
+                                          "span",
+                                          {
+                                            className: "pl-tag",
+                                            "data-tone": tone,
+                                          },
+                                          label,
+                                        ),
+                                        hint &&
+                                          infoButton(
+                                            `tag-${template.id}-${label}`,
+                                            label,
+                                          ),
                                       ),
+                                    ),
+                                  ),
+                                tags
+                                  .filter(([, , hint]) => hint)
+                                  .map(([, label, hint]) =>
+                                    infoPanel(
+                                      `tag-${template.id}-${label}`,
+                                      label,
+                                      h("p", null, hint),
                                     ),
                                   ),
                                 h(
@@ -1857,13 +1993,21 @@ window.__ModuleLoader__.load({
                                 { className: "pl-templateActions" },
                                 state
                                   ? h(
-                                      "span",
-                                      {
-                                        className: "pl-tag",
-                                        "data-tone": state[0],
-                                        title: state[2],
-                                      },
-                                      state[1],
+                                      "div",
+                                      { className: "pl-templateState" },
+                                      h(
+                                        "span",
+                                        {
+                                          className: "pl-tag",
+                                          "data-tone": state[0],
+                                        },
+                                        state[1],
+                                      ),
+                                      state[2] &&
+                                        infoButton(
+                                          `state-${template.id}`,
+                                          state[1],
+                                        ),
                                     )
                                   : h(
                                       "button",
@@ -1948,6 +2092,12 @@ window.__ModuleLoader__.load({
                                       t("templateModelConfirmAdd"),
                                     ),
                                   ),
+                                ),
+                              state?.[2] &&
+                                infoPanel(
+                                  `state-${template.id}`,
+                                  state[1],
+                                  h("p", null, state[2]),
                                 ),
                             );
                           }),
