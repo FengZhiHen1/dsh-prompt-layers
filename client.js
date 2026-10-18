@@ -926,6 +926,11 @@ window.__ModuleLoader__.load({
           ]);
           if (taken.has(template.sectionId)) return current;
           const key = `draft:${++serial.current}`;
+          const templatePosition = template.position?.before
+            ? { position: "before", anchor: template.position.before }
+            : template.position?.after
+              ? { position: "after", anchor: template.position.after }
+              : { position: "default", anchor: "" };
           return {
             ...current,
             [key]: {
@@ -934,6 +939,7 @@ window.__ModuleLoader__.load({
               isNew: true,
               fields: {
                 ...emptyFields(),
+                ...templatePosition,
                 content: template.content,
                 role: template.when?.agent?.role ?? "",
                 presets: (template.when?.agent?.presets ?? []).join(", "),

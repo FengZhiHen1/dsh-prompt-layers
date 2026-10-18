@@ -52,6 +52,23 @@ test('the main coordination template is model-scoped and limited to the main Age
   assert.deepEqual(template.when, { agent: { role: 'main' } })
 })
 
+test('the PowerShell template defaults to the native tool anchor', async () => {
+  const template = templates.find((item) => item.sectionId === 'custom:pwsh-guidance')
+  assert.ok(template)
+  assert.deepEqual(template.position, { after: 'tool:pwsh' })
+  const { files, application, runtime } = await fixture()
+  const before = await application.view()
+  await application.execute({ action: 'import', templateIds: [template.id], targets: [{ scope: 'global' }], expectedRevision: before.revision })
+  const after = await files.load()
+  const section = after.documents[0].data.sections.find((item) => item.id === 'custom:pwsh-guidance')
+  assert.ok(section)
+  assert.deepEqual(section.position, { after: 'tool:pwsh' })
+  assert.deepEqual(section.when, { tools: { powershell: true } })
+  assert.equal(section.contentFile, 'content/pwsh-guidance.md')
+  assert.equal(runtime.status.phase, 'active')
+  runtime.dispose()
+})
+
 test('stale import and conflicting user content are rejected before changing authority files', async () => {
   const { files, application, runtime } = await fixture()
   const before = await application.view()

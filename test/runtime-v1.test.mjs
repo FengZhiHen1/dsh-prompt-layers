@@ -526,6 +526,51 @@ test('the PowerShell condition follows the Agent-visible pwsh tool', { skip }, a
   }
 })
 
+test('a PowerShell template anchored after tool:pwsh validates presets without the tool', { skip }, async () => {
+  const layer = [
+    'apiVersion: prompt-layers/v1',
+    'scope: global',
+    'sections:',
+    '  - id: custom:pwsh',
+    '    content: PWSH ONLY',
+    '    position:',
+    '      after: tool:pwsh',
+    '    when:',
+    '      tools:',
+    '        powershell: true',
+    '',
+  ].join('\n')
+  const roster = [
+    { id: 'pwsh-anchor-with-tool', broken: false },
+    { id: 'pwsh-anchor-without-tool', broken: false },
+  ]
+  const withTool = await hostHarness('pwsh-anchor-with-tool', { 'global.yaml': layer }, {
+    roster,
+    tools: { pwsh: { name: 'pwsh', description: 'Persistent command session.', parameters: {} } },
+  })
+  withTool.ctx.systemPrompt.section({ name: 'tool:pwsh', text: 'PWSH TOOL', order: 4 })
+  try {
+    assert.equal((await withTool.view()).status.phase, 'active')
+    const agent = fakeAgent('agent-pwsh-anchor-present')
+    const assembly = await withTool.ctx.systemPrompt.assemble({ agent, scope: agent })
+    const names = sectionNames(assembly)
+    assert.ok(names.includes('custom:pwsh'))
+    assert.ok(names.indexOf('custom:pwsh') > names.indexOf('tool:pwsh'))
+  } finally {
+    await withTool.ctx.fiber.dispose()
+  }
+
+  const withoutTool = await hostHarness('pwsh-anchor-without-tool', { 'global.yaml': layer }, { roster })
+  try {
+    assert.equal((await withoutTool.view()).status.phase, 'active')
+    const agent = fakeAgent('agent-pwsh-anchor-absent')
+    const assembly = await withoutTool.ctx.systemPrompt.assemble({ agent, scope: agent })
+    assert.ok(!sectionNames(assembly).includes('custom:pwsh'))
+  } finally {
+    await withoutTool.ctx.fiber.dispose()
+  }
+})
+
 test('a populated preset roster runs the scoped activation gate against real assemblies', { skip }, async () => {
   const harness = await hostHarness(
     'roster',

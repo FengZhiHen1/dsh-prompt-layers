@@ -452,6 +452,7 @@ export class PromptLayersApplication {
         data.sections.push({
           id: template.sectionId,
           contentFile: contentPath,
+          ...(template.position ? { position: template.position } : {}),
           ...(template.when ? { when: template.when } : {}),
         });
       }

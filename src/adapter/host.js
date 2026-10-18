@@ -61,7 +61,11 @@ export async function apply(ctx, config = {}) {
         .map(document => ({ provider: document.data.provider, model: document.data.model }))
       const check = (native, base) => {
         const sections = native.sections.map(section => ({ ...section, managed: true }))
-        for (const target of [{}, ...targets]) for (const role of ['main', 'delegated']) for (const powershell of [false, true]) {
+        // The assembled tool section is the capability source. A preset without
+        // pwsh must not be checked with an impossible powershell:true fact, or a
+        // conditional PowerShell anchor would be rejected for a tool it cannot see.
+        const powershell = sections.some(section => section.name === 'tool:pwsh')
+        for (const target of [{}, ...targets]) for (const role of ['main', 'delegated']) {
           composeLayers(documents, sections, { ...base, ...target, role, powershell })
         }
       }

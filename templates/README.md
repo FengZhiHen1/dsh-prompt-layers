@@ -13,8 +13,10 @@
 | `technical-communication.md` | `custom:technical-communication` | global | 无（按输出体裁自限） | `06_技术语言规范研究与候选.md` §9（2026-10-16） |
 | `flash-execution-core.md` | `custom:flash-execution-core` | model | 无 Agent 角色限制（主/子均适用） | `11_Flash主子Agent分层提示词候选.md` §2（2026-10-17） |
 | `flash-main-coordination.md` | `custom:flash-main-coordination` | model（仅弱模型） | `when.agent.role: main` | `11_Flash主子Agent分层提示词候选.md` §3（2026-10-17） |
-| `pwsh-guidance.md` | `custom:pwsh-guidance` | global | `when.tools.powershell: true` | `15_PowerShell补充提示词精简稿与对照验收.md` §2（469 词，2026-10-17） |
+| `pwsh-guidance.md` | `custom:pwsh-guidance` | global | `when.tools.powershell: true`；默认 `position: after: tool:pwsh` | `15_PowerShell补充提示词精简稿与对照验收.md` §2（469 词，2026-10-17） |
 | `credential-aware-automation.md` | `custom:credential-aware-automation` | global | 无（全部主/子 Agent） | `19_凭证上下文实测复盘与最小化优化方案.md` §3（2026-10-17） |
+
+PowerShell 模板默认紧跟原生 `tool:pwsh` 工具段。模板加入草稿和 Host import 都会把 catalog 的 `position` 写入 Section；这是布局默认值，不是条件。宿主校验从该次 assembly 的实际 `tool:pwsh` 推导 PowerShell 能力，缺少该工具的 preset 不会再用伪造的 `powershell: true` 拒绝锚点。
 
 `catalog.json` 的 `title` 与 `description` 保持原有含义（英文标题、中文说明）；`titleZh` 与 `descriptionEn` 是 Web UI 的双语显示元数据，只影响模板选择器与预览标题，不参与正文批准，也不改变 `*.md` 正文。正文始终是批准的英文原文，不随界面语言翻译。
 
@@ -23,9 +25,9 @@
 ## 批准状态
 
 - **正文**：七份均由用户逐字批准，本目录内容与批准原文逐字一致（2026-10-17 复核，字级比对通过）。文件本身无任何新增规则、无前后解释性文字。
-- **已实现**：YAML/Markdown 解析、global→provider→model 三层合成与锚定排序、热重载与整套回退、详情页 Section 工作区、逐条模板弹层与双语显示元数据、显式导入；`prompt-layers.schema.json` 已含 `when.agent` / `when.tools`。模型层按 Agent 在组装时声明的 provider/model 激活；PowerShell 条件按该 Agent 可见的 `pwsh` 工具匹配。
-- **仍未验证**：请求级 `agent/request` 覆盖声明模型时不会重建已渲染提示词；目标 DSH 版本的真实请求注入与模型行为 A/B 尚未执行。
-- `catalog.json` 的 `sectionId`、`version`、`recommendedScope`、`when` 是**导入元数据与推荐值**，不属于正文批准范围；`titleZh`、`descriptionEn` 是**界面显示元数据**，同样不属于正文批准范围。`builtin:evidence-discipline`、`builtin:anti-unwarranted-defense`、`builtin:technical-communication` 沿用设计资料库给出的发行 ID，其余按同一命名规则派生。
+- **已实现**：YAML/Markdown 解析、global→provider→model 三层合成与锚定排序、热重载与整套回退、详情页 Section 工作区、逐条模板弹层与双语显示元数据、显式导入；`prompt-layers.schema.json` 已含 `when.agent` / `when.tools` / `position`。模型层按 Agent 在组装时声明的 provider/model 激活；PowerShell 条件按该 Agent 可见的 `pwsh` 工具匹配。模板默认 `position`（PowerShell 为 `after: tool:pwsh`）随模板加入草稿和 Host import 落盘；`validateHost` 从实际 assembly 的 `tool:pwsh` 推导该能力，无该工具的 preset 只按 `powershell: false` 校验。
+- **仍未验证**：请求级 `agent/request` 覆盖声明模型时不会重建已渲染提示词；目标 DSH 版本的真实请求注入与模型行为 A/B 尚未执行。本次 test 实例已写入 PowerShell 锚点，但旧 Host 的校验仍将候选保留为 `last-valid`；重启加载 `validateHost` 修正后才按 `after: tool:pwsh` 生效。
+- `catalog.json` 的 `sectionId`、`version`、`recommendedScope`、`when`、`position` 是**导入元数据与推荐值**，不属于正文批准范围；`titleZh`、`descriptionEn` 是**界面显示元数据**，同样不属于正文批准范围。`builtin:evidence-discipline`、`builtin:anti-unwarranted-defense`、`builtin:technical-communication` 沿用设计资料库给出的发行 ID，其余按同一命名规则派生。
 
 ## 不作为发行正文的历史材料
 

@@ -528,6 +528,37 @@ test('the template picker adds each row directly and keeps the picker open', asy
   assert.equal(find(view, (node) => node.children?.[0] === 'templateAddedNotice').length, 1)
 })
 
+test('a template default position seeds the staged row anchor', async () => {
+  const psTemplate = {
+    id: 'builtin:pwsh-guidance',
+    version: '1.0.0',
+    title: 'PowerShell execution guidance (conditional)',
+    titleZh: 'PowerShell 执行指引（条件）',
+    description: 'PowerShell-specific guidance.',
+    descriptionEn: 'PowerShell-specific guidance.',
+    file: 'pwsh-guidance.md',
+    sectionId: 'custom:pwsh-guidance',
+    recommendedScope: 'global',
+    position: { after: 'tool:pwsh' },
+    when: { tools: { powershell: true } },
+    content: 'PowerShell guidance body',
+  }
+  const ui = await mount({ ...withTemplates, templates: [...templates, psTemplate] })
+  let view = ui.render()
+  templateTrigger(view).props.onClick()
+  view = ui.render()
+  const adds = find(view, (node) => node.type === 'button' && node.children?.includes?.('templateAdd'))
+  assert.equal(adds.length, 3)
+  adds[2].props.onClick()
+  view = ui.render()
+  rowOpen(view).props.onClick()
+  view = ui.render()
+  const position = find(view, (node) => node.type === 'select' && node.props?.value === 'after')[0]
+  assert.ok(position)
+  const anchor = find(view, (node) => node.type === 'input' && node.props?.value === 'tool:pwsh')[0]
+  assert.ok(anchor)
+})
+
 test('template titles and descriptions follow the active locale', async () => {
   const zh = await mount(withTemplates, { lang: 'zh' })
   let view = zh.render()

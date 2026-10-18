@@ -9,14 +9,14 @@
 ### warning
 | 规则 | 位置 | 内容 |
 |---|---|---|
-| high-complexity | client.js:6 | factory(require) {  # 逻辑行数 2163 / 逻辑最大缩进 44 列（JSX 返回块不计入） |
-| high-complexity | client.js:589 | function Panel({ t, locale }) {  # 逻辑行数 1558 / 逻辑最大缩进 44 列（JSX 返回块不计入） |
-| high-complexity | client.js:2149 | apply(ctx) {  # 逻辑行数 18 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
+| high-complexity | client.js:6 | factory(require) {  # 逻辑行数 2169 / 逻辑最大缩进 44 列（JSX 返回块不计入） |
+| high-complexity | client.js:589 | function Panel({ t, locale }) {  # 逻辑行数 1564 / 逻辑最大缩进 44 列（JSX 返回块不计入） |
+| high-complexity | client.js:2155 | apply(ctx) {  # 逻辑行数 18 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
 | docstring-promise | src\adapter\application.js:32 | export class PromptLayersApplication {  # 函数体有 throw 但 TSDoc 未声明 @throws |
-| high-complexity | src\adapter\application.js:373 | async importTemplates(request) {  # 逻辑行数 117 / 逻辑最大缩进 12 列（JSX 返回块不计入） |
+| high-complexity | src\adapter\application.js:373 | async importTemplates(request) {  # 逻辑行数 118 / 逻辑最大缩进 12 列（JSX 返回块不计入） |
 | docstring-promise | src\adapter\files.js:50 | export class ConfigurationFiles {  # 函数体有 throw 但 TSDoc 未声明 @throws |
 | docstring-promise | src\adapter\host.js:47 | export async function apply(ctx, config = {}) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
-| high-complexity | src\adapter\host.js:47 | export async function apply(ctx, config = {}) {  # 逻辑行数 100 / 逻辑最大缩进 10 列（JSX 返回块不计入） |
+| high-complexity | src\adapter\host.js:47 | export async function apply(ctx, config = {}) {  # 逻辑行数 104 / 逻辑最大缩进 10 列（JSX 返回块不计入） |
 | docstring-promise | src\core\configuration.js:7 | export function createConfigurationParser(schema) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
 | docstring-promise | src\core\configuration.js:34 | export function assertContentPath(value) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
 | high-complexity | src\core\layers.js:12 | export function validateDocuments(documents) {  # 逻辑行数 86 / 逻辑最大缩进 10 列（JSX 返回块不计入） |
