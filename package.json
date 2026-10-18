@@ -1,6 +1,6 @@
 {
   "name": "dsh-prompt-layers",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "description": "Declarative system-prompt layers with explicit template import and shared YAML/Markdown editing.",
@@ -40,6 +40,7 @@
     "prompt-layers.schema.json",
     "cordis.patch.yml",
     "README.md",
+    "CHANGELOG.md",
     "docs/"
   ],
   "dsh": {

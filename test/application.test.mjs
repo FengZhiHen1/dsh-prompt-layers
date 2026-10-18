@@ -36,6 +36,11 @@ test('package templates remain inert until explicit import and import uses ordin
   runtime.dispose()
 })
 
+test('the package version line is the reset 0.1.0', async () => {
+  const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
+  assert.equal(manifest.version, '0.1.0')
+})
+
 test('shipped template display metadata is bilingual and complete', () => {
   for (const template of templates) {
     for (const field of ['title', 'titleZh', 'description', 'descriptionEn']) {
