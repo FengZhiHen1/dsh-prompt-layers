@@ -41,6 +41,22 @@ test('the package version line is the reset 0.1.0', async () => {
   assert.equal(manifest.version, '0.1.0')
 })
 
+test('the package-root icon is exported and valid', async () => {
+  const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
+  assert.equal(manifest.exports['./icon'], './icon.svg')
+  assert.ok(manifest.files.includes('icon.svg'))
+  const icon = await readFile(new URL('../icon.svg', import.meta.url), 'utf8')
+  assert.match(icon, /^<svg[\s>]/)
+  assert.match(icon, /viewBox="0 0 64 64"/)
+  assert.ok(!/<script\b/i.test(icon))
+  assert.ok(Buffer.byteLength(icon) <= 256 * 1024)
+  for (const locale of ['en', 'zh']) {
+    const meta = JSON.parse(await readFile(new URL(`../locale/${locale}.json`, import.meta.url), 'utf8')).meta
+    assert.ok(meta.title.trim())
+    assert.ok(meta.description.trim())
+  }
+})
+
 test('shipped template display metadata is bilingual and complete', () => {
   for (const template of templates) {
     for (const field of ['title', 'titleZh', 'description', 'descriptionEn']) {

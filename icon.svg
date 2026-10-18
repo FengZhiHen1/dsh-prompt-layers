@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="prompt-layers-title prompt-layers-desc">
+  <title id="prompt-layers-title">Prompt Layers</title>
+  <desc id="prompt-layers-desc">Three stacked prompt layers with a terminal prompt on the top layer.</desc>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="#247bbf"/>
+  <rect x="12" y="41" width="40" height="9" rx="4.5" fill="#ffffff" opacity=".28"/>
+  <rect x="12" y="30" width="40" height="9" rx="4.5" fill="#ffffff" opacity=".52"/>
+  <rect x="12" y="16" width="40" height="14" rx="7" fill="#ffffff"/>
+  <path d="M19 22 25 25.5 19 29" fill="none" stroke="#247bbf" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="30" y="24.1" width="11" height="2.8" rx="1.4" fill="#247bbf" opacity=".85"/>
+</svg>

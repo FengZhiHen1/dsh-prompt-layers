@@ -3,6 +3,7 @@
 ## 0.1.0 — Unreleased
 
 - 将版本线从 0.2.0 重置为 0.1.0；旧 0.2.0 开发线未发布、无 tag、无外部版本消费者，按 `knowledge/v0.2.1-rc.2/05-插件工程约定.md` 的版本重置规则冻结为历史。
+- 添加原创的 `icon.svg`，通过 `./icon` 导出，供 Plugins 页展示。
 - 既有：声明式系统提示词分层、显式模板导入、模型层按声明路由激活、主统筹限定弱模型、PowerShell 工具条件与模板默认锚定。
 
 ## 0.2.0 — Unreleased development line (frozen)
