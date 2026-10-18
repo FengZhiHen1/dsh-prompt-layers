@@ -193,7 +193,7 @@ window.__ModuleLoader__.load({
         templateNeedsPwsh: "需 PowerShell 能力",
         templatePwshUnknown: "需 PowerShell（条件不会匹配）",
         templatePwshUnknownHint:
-          "宿主无法证明 Agent 的实际 shell 方言；带此条件的模板导入后不会自动匹配。可在 Section 编辑区清除 PowerShell 条件，或等待宿主提供方言能力。",
+          "当前宿主未检测到该 Agent 可用的 pwsh 工具；带此条件的模板不会应用。需要 PowerShell 指引时，先确认该 Agent 具备 pwsh 工具，或在 Section 编辑区清除 PowerShell 条件。",
         templateScopeWarning:
           "部分模板推荐用于模型层；当前范围更宽，加入后会影响更多请求。要限定模型，请先切换到模型范围；切换会丢弃当前草稿。",
         templateScopeSteps:
@@ -254,20 +254,20 @@ window.__ModuleLoader__.load({
         anchorRequired: "请填写锚点 Section ID。",
         enabled: "启用此 Section",
         conditions: "Agent 与工具条件",
-        conditionsHint: "条件不匹配时该段不应用；未知工具能力不会按可用处理。",
+        conditionsHint: "条件不匹配时该段不应用；未提供的工具能力不会按可用处理。",
         role: "Agent 角色",
         all: "全部主/子 Agent",
         main: "仅主 Agent",
         delegated: "仅子 Agent",
         presets: "限定 Preset（逗号分隔，留空为全部）",
-        pwsh: "仅具备已证明的 PowerShell 能力时应用",
+        pwsh: "仅当 Agent 可见 pwsh 工具时应用",
         managed: "明确允许修改此受管原生段",
         managedHint: "受管原生段必须显式授权，保存才会写入。",
         managedRequired: "请先勾选允许修改受管原生段。",
         history: "各层定义与差异",
         diagnostics: "诊断详情",
         blocked:
-          "供应商与模型层目前仅供配置和预览；当前宿主尚不支持按最终请求路由应用。",
+          "模型层按 Agent 声明的 provider/model 生效；若请求级路由覆盖声明模型，可能不匹配。",
         emptyStatus: "未添加提示词",
         active: "配置已激活",
         lastValid: "候选无效，使用上次有效配置",
@@ -327,7 +327,7 @@ window.__ModuleLoader__.load({
         templateNeedsPwsh: "Requires PowerShell",
         templatePwshUnknown: "Requires PowerShell (will not match)",
         templatePwshUnknownHint:
-          "The host cannot prove the agent's actual shell dialect, so this conditional template will not match after it is added. Clear the PowerShell condition in the Section editor, or wait for host dialect support.",
+          "This host does not expose a pwsh tool to the Agent, so this conditional template does not apply. Confirm the Agent has the pwsh tool, or clear the PowerShell condition in the Section editor.",
         templateScopeWarning:
           "Some templates are recommended for the model layer; this scope is broader, so they affect more requests. To limit them to a model, switch scope first; switching discards the current draft.",
         templateScopeSteps:
@@ -395,13 +395,13 @@ window.__ModuleLoader__.load({
         enabled: "Enable this Section",
         conditions: "Agent and tool conditions",
         conditionsHint:
-          "Unmatched conditions do not apply; unknown tool capabilities do not match.",
+          "Unmatched conditions do not apply; an unavailable tool capability does not match.",
         role: "Agent role",
         all: "All main and delegated Agents",
         main: "Main only",
         delegated: "Delegated only",
         presets: "Presets (comma separated; empty means all)",
-        pwsh: "Require proven PowerShell capability",
+        pwsh: "Apply only when the Agent can see the pwsh tool",
         managed: "Explicitly allow this managed native override",
         managedHint:
           "A managed native Section needs explicit permission before a save writes it.",
@@ -409,7 +409,7 @@ window.__ModuleLoader__.load({
         history: "Layer definitions and differences",
         diagnostics: "Diagnostics",
         blocked:
-          "Provider and model layers can be configured and previewed; this host cannot apply them after final routing.",
+          "Model layers follow the Agent declared provider/model; a request-level route override can mismatch.",
         emptyStatus: "No prompt layers",
         active: "Configuration active",
         lastValid: "Invalid candidate; using last valid configuration",

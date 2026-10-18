@@ -20,7 +20,11 @@ export const Config = z.object({
   pollIntervalMs: z.number().min(250).max(30000).default(1000),
 })
 
-/** Extract only proven Agent identity and presentation-independent tool facts. */
+/**
+ * Extract Agent identity, the declared route, and presentation-independent tool facts.
+ * The declared route matches the host's `{{provider}}`/`{{model}}` variables. A later
+ * agent/request override is not visible here; model layers therefore follow this route.
+ */
 export function assemblyFacts(ctx, context) {
   const agent = context.agent
   if (!agent) return {}
@@ -28,9 +32,15 @@ export function assemblyFacts(ctx, context) {
   const depths = [header?.delegationDepth, agent.options?.subagentDepth].filter(value => Number.isSafeInteger(value) && value >= 0)
   const role = header?.origin === 'subagent' || header?.parentSession || depths.some(value => value > 0)
     ? 'delegated' : depths.length ? 'main' : undefined
-  // The official consumer promises PowerShell, but custom shell backends expose no dialect contract.
-  const powershell = ctx.tools.get('pwsh', agent) === undefined ? false : undefined
-  return { preset: ctx.agentPresets.composedPreset(agent.ctx), role, powershell }
+  // The scoped pwsh tool is direct evidence that this Agent can execute PowerShell.
+  const powershell = ctx.tools.get('pwsh', agent) !== undefined
+  return {
+    preset: ctx.agentPresets.composedPreset(agent.ctx),
+    role,
+    powershell,
+    provider: agent.options?.provider,
+    model: agent.options?.model,
+  }
 }
 
 /** Mount one complete snapshot owner and release every observer on unload. */
@@ -45,20 +55,24 @@ export async function apply(ctx, config = {}) {
     validating = true
     try {
       const roster = await ctx.agentPresets.list()
-      if (roster.length === 0) {
-        const native = await ctx.systemPrompt.assemble()
-        for (const role of ['main', 'delegated']) for (const powershell of [false, true]) {
-          composeLayers(documents, native.sections.map(section => ({ ...section, managed: true })), { role, powershell })
+      // Validate every configured target, not only the global/default composition.
+      const targets = documents
+        .filter(document => document.data.scope !== 'global')
+        .map(document => ({ provider: document.data.provider, model: document.data.model }))
+      const check = (native, base) => {
+        const sections = native.sections.map(section => ({ ...section, managed: true }))
+        for (const target of [{}, ...targets]) for (const role of ['main', 'delegated']) for (const powershell of [false, true]) {
+          composeLayers(documents, sections, { ...base, ...target, role, powershell })
         }
+      }
+      if (roster.length === 0) {
+        check(await ctx.systemPrompt.assemble(), {})
       }
       for (const preset of roster.slice(0, 64)) {
         if (preset.broken) continue
         const lease = await ctx.agentPresets.acquireScope(preset.id)
         try {
-          const native = await ctx.systemPrompt.assemble({ scope: lease.key })
-          for (const role of ['main', 'delegated']) for (const powershell of [false, true]) {
-            composeLayers(documents, native.sections.map(section => ({ ...section, managed: true })), { preset: preset.id, role, powershell })
-          }
+          check(await ctx.systemPrompt.assemble({ scope: lease.key }), { preset: preset.id })
         } finally { await lease[Symbol.asyncDispose]() }
       }
     } finally { validating = false }
@@ -72,7 +86,11 @@ export async function apply(ctx, config = {}) {
       for (const model of models.slice(0, 256)) routes.push({ provider: provider.id, model: model.id })
     }
     return routes
-  })
+  }, () => ({
+    modelLayers: true,
+    powershell: ctx.tools.get('pwsh') === undefined ? 'unavailable' : 'available',
+    reason: 'Model layers follow the Agent declared provider/model; request-level route overrides are not observed',
+  }))
   const expected = new Map()
   let polling = false
   const logFailure = error => ctx.logger.warn(`prompt-layers: ${error.message}`)

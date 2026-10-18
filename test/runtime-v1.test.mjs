@@ -1,12 +1,14 @@
 // runtime-v1 — independent gate against an installed DSH 0.2.x runtime.
 // Contract under test (black box, no private host access):
-//   1. PromptLayersRuntime blocks provider/model candidates and keeps the previous global snapshot.
+//   1. PromptLayersRuntime applies provider/model candidates to the Agent route visible at
+//      assembly and keeps the previous complete snapshot when a candidate is invalid.
 //   2. The real SystemPrompt registry accepts the Host composition: order, interpolate:false,
 //      complete suppression, native multi-complete failure, and dispose rollback.
 //   3. The Host wiring (injected connection stub, empty or stubbed preset roster) exposes
 //      activation status and records committed vs suppressed-or-changed from real session events.
-//   4. Late request routing cannot rebuild the prompt: the installed agent-loop source order is
-//      asserted instead of booting a full agent stack.
+//   4. Late request routing cannot rebuild the prompt: the model layer follows the declared
+//      route, and the installed agent-loop source order is asserted instead of booting a full
+//      agent stack. A request-level route override remains a documented limitation.
 // Everything writable stays under <repo>/tmp/prompt-layers-runtime-v1 and is removed afterwards.
 import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -184,46 +186,51 @@ const sectionNames = (assembly) => assembly.sections.map((section) => section.na
 
 // ---------------------------------------------------------------- pure runtime
 
-test('runtime blocks a provider-scoped candidate and keeps the previous global snapshot', async () => {
+test('runtime applies declared-route providers and models, retaining the last valid snapshot on failure', async () => {
   let candidate = {
     revision: 'rev-provider',
     documents: [{ path: 'providers/proxy-a.yaml', data: { apiVersion: 'prompt-layers/v1', scope: 'provider', provider: 'proxy-a', sections: [{ id: 'custom:p', content: 'P' }] } }],
   }
   const files = { load: async () => candidate, generated: async () => {} }
   const owner = new PromptLayersRuntime(files, { now: () => '2026-10-17T00:00:00.000Z' })
+  const native = { sections: [{ name: 'harness:identity', text: 'IDENTITY' }], contexts: [], tools: [], variables: {} }
 
   await owner.reload()
-  assert.equal(owner.status.phase, 'native-fallback')
-  assert.match(owner.status.reason, /HOST_ROUTE_TIMING/)
-  assert.equal(owner.status.modelLayers, 'blocked-host-timing')
-  assert.equal(owner.snapshot, undefined)
+  assert.equal(owner.status.phase, 'active')
+  assert.equal(owner.status.modelLayers, 'declared-route')
+  assert.equal(owner.snapshot.revision, 'rev-provider')
+  assert.deepEqual(owner.assemble(native, { provider: 'proxy-a' }).sections.map(section => section.name), ['harness:identity', 'custom:p'])
+  assert.deepEqual(owner.assemble(native, { provider: 'proxy-b' }).sections.map(section => section.name), ['harness:identity'])
 
   candidate = {
-    revision: 'rev-global',
-    documents: [{ path: 'global.yaml', data: { apiVersion: 'prompt-layers/v1', scope: 'global', sections: [{ id: 'custom:g', content: 'GLOBAL' }] } }],
+    revision: 'rev-model',
+    documents: [
+      { path: 'global.yaml', data: { apiVersion: 'prompt-layers/v1', scope: 'global', sections: [{ id: 'custom:g', content: 'GLOBAL' }] } },
+      { path: 'providers/proxy-a/models/model-x.yaml', data: { apiVersion: 'prompt-layers/v1', scope: 'model', provider: 'proxy-a', model: 'model-x', sections: [{ id: 'custom:m', content: 'MODEL' }] } },
+    ],
   }
   await owner.reload()
   assert.equal(owner.status.phase, 'active')
-  assert.equal(owner.status.activeRevision, 'rev-global')
-
-  const native = { sections: [{ name: 'harness:identity', text: 'IDENTITY' }], contexts: [], tools: [], variables: {} }
-  const composed = owner.assemble(native, { preset: 'stub' })
-  assert.deepEqual(composed.sections.map((section) => section.name), ['harness:identity', 'custom:g'])
+  assert.equal(owner.status.activeRevision, 'rev-model')
+  assert.deepEqual(owner.assemble(native, { provider: 'proxy-a', model: 'model-x' }).sections.map(section => section.name), ['harness:identity', 'custom:g', 'custom:m'])
+  assert.deepEqual(owner.assemble(native, { provider: 'proxy-a', model: 'model-y' }).sections.map(section => section.name), ['harness:identity', 'custom:g'])
 
   candidate = {
-    revision: 'rev-provider-2',
-    documents: [{ path: 'providers/proxy-a.yaml', data: { apiVersion: 'prompt-layers/v1', scope: 'provider', provider: 'proxy-a', sections: [{ id: 'custom:p', content: 'P' }] } }],
+    revision: 'rev-invalid',
+    documents: [
+      { path: 'global.yaml', data: { apiVersion: 'prompt-layers/v1', scope: 'global', sections: [{ id: 'custom:dup', content: 'ONE' }] } },
+      { path: 'duplicate.yaml', data: { apiVersion: 'prompt-layers/v1', scope: 'global', sections: [{ id: 'custom:dup', content: 'TWO' }] } },
+    ],
   }
   await owner.reload()
   assert.equal(owner.status.phase, 'last-valid')
-  assert.equal(owner.status.activeRevision, 'rev-global')
-  assert.match(owner.status.reason, /HOST_ROUTE_TIMING/)
-  const stillComposed = owner.assemble(native, { preset: 'stub' })
-  assert.deepEqual(stillComposed.sections.map((section) => section.name), ['harness:identity', 'custom:g'])
+  assert.equal(owner.status.activeRevision, 'rev-model')
+  assert.match(owner.status.reason, /duplicate/)
+  assert.deepEqual(owner.assemble(native, { provider: 'proxy-a', model: 'model-x' }).sections.map(section => section.name), ['harness:identity', 'custom:g', 'custom:m'])
 
   owner.dispose()
   assert.equal(owner.status.phase, 'disabled')
-  assert.equal(owner.assemble(native, { preset: 'stub' }), native)
+  assert.equal(owner.assemble(native, {}), native)
 })
 
 test('core rejects a managed native override unless allowManagedOverride is declared', () => {
@@ -270,7 +277,8 @@ test('real assembly accepts Host layers: position, interpolate:false, and variab
     })
     const view = await harness.view()
     assert.equal(view.status.phase, 'active')
-    assert.equal(view.capabilities.modelLayers, false)
+    assert.equal(view.status.modelLayers, 'declared-route')
+    assert.equal(view.capabilities.modelLayers, true)
     assert.ok(view.observations.some((entry) => entry.phase === 'committed'), JSON.stringify(view.observations))
   } finally {
     await harness.ctx.fiber.dispose()
@@ -386,21 +394,39 @@ test('dispose removes every Host layer and leaves the native prompt', { skip }, 
 
 // ------------------------------------------------------------- Host candidate gate
 
-test('a provider-scoped candidate is blocked at activation while configuration stays available', { skip }, async () => {
-  const harness = await hostHarness('blocked', {
+test('provider and model candidates activate on the declared route only', { skip }, async () => {
+  const modelLayer = [
+    'apiVersion: prompt-layers/v1',
+    'scope: model',
+    'provider: proxy-a',
+    'model: model-x',
+    'sections:',
+    '  - id: custom:model-only',
+    '    content: MODEL ONLY',
+    '',
+  ].join('\n')
+  const harness = await hostHarness('declared-route', {
     'global.yaml': 'apiVersion: prompt-layers/v1\nscope: global\n',
     'providers/proxy-a.yaml': PROVIDER_LAYER,
+    'models/model-x.yaml': modelLayer,
   })
   try {
-    const agent = fakeAgent('agent-blocked')
-    const assembly = await harness.ctx.systemPrompt.assemble({ agent, scope: agent })
-    assert.ok(!sectionNames(assembly).includes('custom:provider-only'))
+    const target = fakeAgent('agent-target', { options: { provider: 'proxy-a', model: 'model-x' } })
+    const targetAssembly = await harness.ctx.systemPrompt.assemble({ agent: target, scope: target })
+    assert.ok(sectionNames(targetAssembly).includes('custom:provider-only'))
+    assert.ok(sectionNames(targetAssembly).includes('custom:model-only'))
+
+    const sibling = fakeAgent('agent-sibling', { options: { provider: 'proxy-a', model: 'model-y' } })
+    const siblingAssembly = await harness.ctx.systemPrompt.assemble({ agent: sibling, scope: sibling })
+    assert.ok(sectionNames(siblingAssembly).includes('custom:provider-only'))
+    assert.ok(!sectionNames(siblingAssembly).includes('custom:model-only'))
+
     const view = await harness.view()
-    assert.equal(view.status.phase, 'native-fallback')
-    assert.match(view.status.reason, /HOST_ROUTE_TIMING/)
-    assert.equal(view.status.modelLayers, 'blocked-host-timing')
-    assert.equal(view.capabilities.modelLayers, false)
+    assert.equal(view.status.phase, 'active')
+    assert.equal(view.status.modelLayers, 'declared-route')
+    assert.equal(view.capabilities.modelLayers, true)
     assert.ok(view.files.some((file) => file.path === 'providers/proxy-a.yaml'))
+    assert.ok(view.files.some((file) => file.path === 'models/model-x.yaml'))
   } finally {
     await harness.ctx.fiber.dispose()
   }
@@ -465,7 +491,7 @@ test('managed native overrides need allowManagedOverride and are refused without
   }
 })
 
-test('the PowerShell condition never guesses a dialect from the tool name', { skip }, async () => {
+test('the PowerShell condition follows the Agent-visible pwsh tool', { skip }, async () => {
   const powershellLayer = [
     'apiVersion: prompt-layers/v1',
     'scope: global',
@@ -483,7 +509,8 @@ test('the PowerShell condition never guesses a dialect from the tool name', { sk
   try {
     const agent = fakeAgent('agent-pwsh-present')
     const assembly = await withTool.ctx.systemPrompt.assemble({ agent, scope: agent })
-    assert.ok(!sectionNames(assembly).includes('custom:pwsh'))
+    assert.ok(sectionNames(assembly).includes('custom:pwsh'))
+    assert.equal((await withTool.view()).capabilities.powershell, 'available')
   } finally {
     await withTool.ctx.fiber.dispose()
   }
@@ -493,6 +520,7 @@ test('the PowerShell condition never guesses a dialect from the tool name', { sk
     const agent = fakeAgent('agent-pwsh-absent')
     const assembly = await withoutTool.ctx.systemPrompt.assemble({ agent, scope: agent })
     assert.ok(!sectionNames(assembly).includes('custom:pwsh'))
+    assert.equal((await withoutTool.view()).capabilities.powershell, 'unavailable')
   } finally {
     await withoutTool.ctx.fiber.dispose()
   }
@@ -517,7 +545,7 @@ test('a populated preset roster runs the scoped activation gate against real ass
 
 // ------------------------------------------------------------ late-route evidence
 
-test('the installed agent loop renders the prompt before the request waterfall', { skip }, async () => {
+test('the installed agent loop renders the prompt before the request waterfall (declared-route caveat)', { skip }, async () => {
   assert.ok(runtime.agentLoopEntry, 'the runtime ships @deepseek-ai/dsh-agent-loop')
   const source = readFileSync(runtime.agentLoopEntry, 'utf8')
   const render = source.indexOf('const renderedPrompt = renderPrompt(assembly);')

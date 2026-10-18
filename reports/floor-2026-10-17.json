@@ -2,8 +2,8 @@
 
 - root: `.`
 - 扫描文件: 17（py: 0, ts: 17）
-- 交付面引用检查: git 索引可用（已跟踪 53 / 未暂存 0）
-- error: 0 / warning: 14
+- 交付面引用检查: git 索引可用（已跟踪 53 / 未暂存 1）
+- error: 0 / warning: 13
 - **verdict: PASS**
 
 ### warning
@@ -13,11 +13,10 @@
 | high-complexity | client.js:589 | function Panel({ t, locale }) {  # 逻辑行数 1558 / 逻辑最大缩进 44 列（JSX 返回块不计入） |
 | high-complexity | client.js:2149 | apply(ctx) {  # 逻辑行数 18 / 逻辑最大缩进 18 列（JSX 返回块不计入） |
 | docstring-promise | src\adapter\application.js:32 | export class PromptLayersApplication {  # 函数体有 throw 但 TSDoc 未声明 @throws |
-| high-complexity | src\adapter\application.js:364 | async importTemplates(request) {  # 逻辑行数 117 / 逻辑最大缩进 12 列（JSX 返回块不计入） |
+| high-complexity | src\adapter\application.js:373 | async importTemplates(request) {  # 逻辑行数 117 / 逻辑最大缩进 12 列（JSX 返回块不计入） |
 | docstring-promise | src\adapter\files.js:50 | export class ConfigurationFiles {  # 函数体有 throw 但 TSDoc 未声明 @throws |
-| docstring-promise | src\adapter\host.js:37 | export async function apply(ctx, config = {}) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
-| high-complexity | src\adapter\host.js:37 | export async function apply(ctx, config = {}) {  # 逻辑行数 92 / 逻辑最大缩进 12 列（JSX 返回块不计入） |
-| docstring-promise | src\adapter\runtime.js:16 | export class PromptLayersRuntime {  # 函数体有 throw 但 TSDoc 未声明 @throws |
+| docstring-promise | src\adapter\host.js:47 | export async function apply(ctx, config = {}) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
+| high-complexity | src\adapter\host.js:47 | export async function apply(ctx, config = {}) {  # 逻辑行数 100 / 逻辑最大缩进 10 列（JSX 返回块不计入） |
 | docstring-promise | src\core\configuration.js:7 | export function createConfigurationParser(schema) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
 | docstring-promise | src\core\configuration.js:34 | export function assertContentPath(value) {  # 函数体有 throw 但 TSDoc 未声明 @throws |
 | high-complexity | src\core\layers.js:12 | export function validateDocuments(documents) {  # 逻辑行数 86 / 逻辑最大缩进 10 列（JSX 返回块不计入） |

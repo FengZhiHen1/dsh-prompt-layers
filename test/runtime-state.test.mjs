@@ -10,10 +10,16 @@ test('invalid candidates retain the complete last snapshot including resolved Ma
   const published = []
   const runtime = new PromptLayersRuntime({ load: async () => candidate, generated: async (...args) => published.push(args) })
   await runtime.reload()
-  candidate = { documents: [document('new'), { path: 'models/a.yaml', data: { scope: 'model', provider: 'a', model: 'b', sections: [] } }], revision: 'two' }
+  candidate = {
+    documents: [
+      document('new'),
+      { path: 'duplicate.yaml', data: { scope: 'global', sections: [{ id: 'custom:a', content: 'duplicate' }] } },
+    ],
+    revision: 'two',
+  }
   await runtime.reload()
   assert.equal(runtime.status.phase, 'last-valid')
-  assert.match(runtime.status.reason, /HOST_ROUTE_TIMING/)
+  assert.match(runtime.status.reason, /duplicate/)
   const result = runtime.assemble(native, {})
   assert.equal(result.sections.at(-1).text, 'old')
   assert.equal(result.contexts, native.contexts)

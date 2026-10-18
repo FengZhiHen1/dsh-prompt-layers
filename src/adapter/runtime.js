@@ -1,5 +1,5 @@
 // runtime — owns immutable configuration snapshots and bounded observations.
-// Boundary: model-specific activation requires a post-route assembly API.
+// Boundary: model-specific activation follows the Agent route visible at assembly.
 import { createHash } from 'node:crypto'
 import { validateDocuments, composeLayers } from '../core/layers.js'
 
@@ -19,7 +19,7 @@ export class PromptLayersRuntime {
     this.validateHost = validateHost
     this.now = now
     this.snapshot = undefined
-    this.status = { phase: 'native-fallback', reason: 'not-loaded', modelLayers: 'blocked-host-timing' }
+    this.status = { phase: 'native-fallback', reason: 'not-loaded', modelLayers: 'declared-route' }
     this.observations = []
     this.catalogs = new Map()
     this.disposed = false
@@ -43,10 +43,6 @@ export class PromptLayersRuntime {
         return this.status
       }
       validateDocuments(candidate.documents)
-      // Verified on DSH 0.2.0-rc.2 and 0.2.1-rc.2: no supported hook rebuilds Sections after routing.
-      if (candidate.documents.some(document => document.data.scope !== 'global')) {
-        throw new Error('HOST_ROUTE_TIMING: this host renders Sections before final request routing, so provider/model activation is blocked; configuration remains available for preview')
-      }
       await this.validateHost(candidate.documents)
       for (const { sections, facts } of this.catalogs.values()) composeLayers(candidate.documents, sections, facts)
       if (this.disposed) return this.status
@@ -54,14 +50,14 @@ export class PromptLayersRuntime {
       this.status = {
         phase: candidate.documents.every(document => !(document.data.sections?.length || Object.keys(document.data.existing ?? {}).length)) ? 'empty' : 'active',
         candidateRevision: candidate.revision, activeRevision: candidate.revision,
-        activatedAt: this.now(), modelLayers: 'blocked-host-timing',
+        activatedAt: this.now(), modelLayers: 'declared-route',
       }
     } catch (error) {
       if (this.disposed) return this.status
       this.status = {
         phase: this.snapshot ? 'last-valid' : 'native-fallback',
         activeRevision: this.snapshot?.revision, candidateRevision: candidate?.revision,
-        reason: error.message, modelLayers: 'blocked-host-timing',
+        reason: error.message, modelLayers: 'declared-route',
       }
     }
     await this.publish()
@@ -102,6 +98,6 @@ export class PromptLayersRuntime {
     this.snapshot = undefined
     this.catalogs.clear()
     this.observations = []
-    this.status = { phase: 'disabled', modelLayers: 'blocked-host-timing' }
+    this.status = { phase: 'disabled', modelLayers: 'declared-route' }
   }
 }

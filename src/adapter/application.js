@@ -30,13 +30,30 @@ export async function loadTemplates() {
 
 /** Application operations used by the authenticated UI and file workflow. */
 export class PromptLayersApplication {
-  constructor(files, runtime, parse, templates, routes = async () => []) {
+  constructor(
+    files,
+    runtime,
+    parse,
+    templates,
+    routes = async () => [],
+    capabilities = { modelLayers: true, powershell: "unknown" },
+  ) {
     this.files = files;
     this.runtime = runtime;
     this.parse = parse;
     this.templates = templates;
     this.routes = routes;
+    this.capabilitySource = capabilities;
     this.busy = false;
+  }
+
+  /** Read the host-provided capability surface for this page. */
+  capabilityFacts() {
+    const value =
+      typeof this.capabilitySource === "function"
+        ? this.capabilitySource()
+        : this.capabilitySource;
+    return { ...value };
   }
 
   /** Return current disk and activation status without persisting prompt text. */
@@ -51,11 +68,7 @@ export class PromptLayersApplication {
         templates: this.templates,
         routes: await this.routes(),
         error: error.message,
-        capabilities: {
-          modelLayers: false,
-          powershell: "unknown",
-          reason: "Host route timing and shell dialect proof are unavailable",
-        },
+        capabilities: this.capabilityFacts(),
         ...this.paths(),
       };
     }
@@ -66,11 +79,7 @@ export class PromptLayersApplication {
       templates: this.templates,
       routes: await this.routes(),
       observations: this.runtime.observations,
-      capabilities: {
-        modelLayers: false,
-        powershell: "unknown",
-        reason: "DSH 0.2.x renders Sections before final request routing",
-      },
+      capabilities: this.capabilityFacts(),
       ...this.paths(),
     };
   }

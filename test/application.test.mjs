@@ -45,6 +45,13 @@ test('shipped template display metadata is bilingual and complete', () => {
   }
 })
 
+test('the main coordination template recommends the global main-Agent scope', () => {
+  const template = templates.find((item) => item.sectionId === 'custom:flash-main-coordination')
+  assert.ok(template)
+  assert.equal(template.recommendedScope, 'global')
+  assert.deepEqual(template.when, { agent: { role: 'main' } })
+})
+
 test('stale import and conflicting user content are rejected before changing authority files', async () => {
   const { files, application, runtime } = await fixture()
   const before = await application.view()

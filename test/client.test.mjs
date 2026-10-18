@@ -72,7 +72,7 @@ const addButton = (view) => find(view, (node) => node.type === 'button' && node.
 const rowOpen = (view) => find(view, byClass('pl-rowOpen'))[0]
 const textarea = (view) => find(view, (node) => node.type === 'textarea')[0]
 
-const empty = { status: { phase: 'empty' }, revision: 'one', sections: [], files: [], templates: [], routes: [], identities: [], capabilities: { modelLayers: false } }
+const empty = { status: { phase: 'empty' }, revision: 'one', sections: [], files: [], templates: [], routes: [], identities: [], capabilities: { modelLayers: true, powershell: 'available' } }
 
 const templates = [
   {
@@ -581,15 +581,11 @@ test('the picker warns when model-layer templates are added at a broader scope',
   assert.equal(modelTag.props['data-tone'], 'warning')
   const globalTag = find(view, (node) => node.children?.includes?.('templateRecommendedGlobal'))[0]
   assert.equal(globalTag.props['data-tone'], 'outline')
-  const pwshTag = find(view, (node) => node.children?.includes?.('templatePwshUnknown'))[0]
-  assert.equal(pwshTag.props['data-tone'], 'warning')
+  const pwshTag = find(view, (node) => node.children?.includes?.('templateNeedsPwsh'))[0]
+  assert.equal(pwshTag.props['data-tone'], 'outline')
   assert.equal(pwshTag.props.title, undefined)
-  const pwshInfo = find(view, (node) => node.type === 'button'
-    && node.props?.['aria-label'] === 'info: templatePwshUnknown')[0]
-  assert.ok(pwshInfo)
-  pwshInfo.props.onClick()
-  view = ui.render()
-  assert.ok(find(view, (node) => node.children?.[0] === 'templatePwshUnknownHint').length)
+  assert.equal(find(view, (node) => node.type === 'button'
+    && node.props?.['aria-label'] === 'info: templatePwshUnknown').length, 0)
   assert.ok(find(view, (node) => node.children?.includes?.('templateMainOnly')).length)
 })
 
