@@ -47,7 +47,7 @@ test('the package-root icon is exported and valid', async () => {
   assert.ok(manifest.files.includes('icon.svg'))
   const icon = await readFile(new URL('../icon.svg', import.meta.url), 'utf8')
   assert.match(icon, /^<svg[\s>]/)
-  assert.match(icon, /viewBox="0 0 64 64"/)
+  assert.match(icon, /viewBox="0 0 36 36"/)
   assert.ok(!/<script\b/i.test(icon))
   assert.ok(Buffer.byteLength(icon) <= 256 * 1024)
   for (const locale of ['en', 'zh']) {
