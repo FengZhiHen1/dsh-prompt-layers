@@ -30,8 +30,10 @@ export function assemblyFacts(ctx, context) {
   if (!agent) return {}
   const header = agent.session?.header
   const depths = [header?.delegationDepth, agent.options?.subagentDepth].filter(value => Number.isSafeInteger(value) && value >= 0)
+  // The Host treats an omitted delegationDepth as 0 (subagent delegationDepthOf()).
+  // A live session header without delegation evidence is therefore the root/main Agent.
   const role = header?.origin === 'subagent' || header?.parentSession || depths.some(value => value > 0)
-    ? 'delegated' : depths.length ? 'main' : undefined
+    ? 'delegated' : header === undefined ? undefined : 'main'
   // The scoped pwsh tool is direct evidence that this Agent can execute PowerShell.
   const powershell = ctx.tools.get('pwsh', agent) !== undefined
   return {

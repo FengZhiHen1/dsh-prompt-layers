@@ -311,6 +311,12 @@ test('Agent identity facts select preset and main/delegated sections', { skip },
     assert.ok(sectionNames(mainAssembly).includes('custom:main-only'))
     assert.ok(!sectionNames(mainAssembly).includes('custom:delegated'))
 
+    // A live root Session omits delegationDepth; the Host reads that as depth 0.
+    const liveMain = fakeAgent('agent-live-main')
+    const liveMainAssembly = await harness.ctx.systemPrompt.assemble({ agent: liveMain, scope: liveMain })
+    assert.ok(sectionNames(liveMainAssembly).includes('custom:main-only'))
+    assert.ok(!sectionNames(liveMainAssembly).includes('custom:delegated'))
+
     const delegated = fakeAgent('agent-delegated', { header: { origin: 'subagent', delegationDepth: 1 } })
     const delegatedAssembly = await harness.ctx.systemPrompt.assemble({ agent: delegated, scope: delegated })
     assert.ok(sectionNames(delegatedAssembly).includes('custom:delegated'))
