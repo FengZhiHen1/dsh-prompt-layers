@@ -36,9 +36,9 @@ test('package templates remain inert until explicit import and import uses ordin
   runtime.dispose()
 })
 
-test('the package version line is the reset 0.1.0', async () => {
+test('the package version line is the current release', async () => {
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
-  assert.equal(manifest.version, '0.1.0')
+  assert.equal(manifest.version, '0.1.1')
 })
 
 test('the package-root icon is exported and valid', async () => {

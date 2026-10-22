@@ -2,7 +2,7 @@
 
 以 YAML/Markdown 管理 DSH 系统提示词 Section。Web UI 与 Agent 编辑同一份文件；七份版本化模板只有显式导入后才生效。
 
-当前为 0.1.0 开发版本，集成目标为 DSH 0.2.1-rc.2（已验证兼容 0.2.0-rc.2）。包图标为原创 SVG（`icon.svg`），通过 `./icon` 导出；`locale/en.json` / `locale/zh.json` 提供 Plugins 页标题与说明。**provider/model 层按 Agent 在系统提示词组装时声明的 provider/model 激活**；该路由与宿主的 `{{provider}}`/`{{model}}` 变量同源。宿主在组装之后还有 `agent/request` 请求级路由环节，若该环节覆盖声明模型，模型层不会随之重建；这是已知边界，不按显示名或旧模型猜测。PowerShell 条件按该 Agent 可见的 `pwsh` 工具判定；未注册该工具时不匹配。真实请求注入与模型行为 A/B 仍需单独验证，不能仅凭配置激活视为完整 V1 通过。
+当前为 0.1.1 开发版本，集成目标为 DSH 0.2.1-rc.2（已验证兼容 0.2.0-rc.2）。包图标为原创 SVG（`icon.svg`），通过 `./icon` 导出；`locale/en.json` / `locale/zh.json` 提供 Plugins 页标题与说明。**provider/model 层按 Agent 在系统提示词组装时声明的 provider/model 激活**；该路由与宿主的 `{{provider}}`/`{{model}}` 变量同源。宿主在组装之后还有 `agent/request` 请求级路由环节，若该环节覆盖声明模型，模型层不会随之重建；这是已知边界，不按显示名或旧模型猜测。PowerShell 条件按该 Agent 可见的 `pwsh` 工具判定；未注册该工具时不匹配。真实请求注入与模型行为 A/B 仍需单独验证，不能仅凭配置激活视为完整 V1 通过。
 
 ## 配置
 
