@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2 — 2026-10-28
+
+- 修复模型层按“Agent 创建时的应用默认模型”而不是会话实际路由匹配：`assemblyFacts` 改为读取 `system-prompt/assemble` waterfall 之后的 `provider`/`model` 变量（会话模型选择已在该 waterfall 内覆写），仅在装配未声明路由时回退 `agent.options`。修掉 `gpt-6.1-sol` 会话命中弱模型段、`deepseek-v4.1-flash` 会话命中 sol 段的镜像错配。详见 `docs/decisions/DSR-008`。
+
 ## 0.1.1 — 2026-10-22
 
 - 修复 live 根会话未显式写入 `delegationDepth` 时 `role: main` 条件不命中：按宿主 `delegationDepthOf()` 的 0 语义判定主 Agent，使 `sol-main-delegation` 等主 Agent 模型层恢复插入。

@@ -267,7 +267,7 @@ window.__ModuleLoader__.load({
         history: "各层定义与差异",
         diagnostics: "诊断详情",
         blocked:
-          "模型层按 Agent 声明的 provider/model 生效；若请求级路由覆盖声明模型，可能不匹配。",
+          "模型层按该次装配实际渲染的路由生效（会话模型选择优先，装配未声明时回退 Agent 创建选项）；请求级路由覆盖不会重建已渲染提示词。",
         emptyStatus: "未添加提示词",
         active: "配置已激活",
         lastValid: "候选无效，使用上次有效配置",
@@ -409,7 +409,7 @@ window.__ModuleLoader__.load({
         history: "Layer definitions and differences",
         diagnostics: "Diagnostics",
         blocked:
-          "Model layers follow the Agent declared provider/model; a request-level route override can mismatch.",
+          "Model layers follow the route this assembly is rendered for (the Session selection wins, falling back to the Agent creation options); a request-level route override never rebuilds a rendered prompt.",
         emptyStatus: "No prompt layers",
         active: "Configuration active",
         lastValid: "Invalid candidate; using last valid configuration",

@@ -438,6 +438,40 @@ test('provider and model candidates activate on the declared route only', { skip
   }
 })
 
+test('the assembly route wins over the creation-time Agent options', { skip }, async () => {
+  const modelFile = (model, id) => [
+    'apiVersion: prompt-layers/v1',
+    'scope: model',
+    'provider: proxy-a',
+    `model: ${model}`,
+    'sections:',
+    `  - id: ${id}`,
+    `    content: ${id.toUpperCase()}`,
+    '',
+  ].join('\n')
+  const harness = await hostHarness('assembly-route', {
+    'global.yaml': 'apiVersion: prompt-layers/v1\nscope: global\n',
+    'providers/proxy-a.yaml': PROVIDER_LAYER,
+    'models/model-x.yaml': modelFile('model-x', 'custom:model-x-only'),
+    'models/model-y.yaml': modelFile('model-y', 'custom:model-y-only'),
+  })
+  try {
+    // The Host's Session model selection rewrites the assembly route variables after the
+    // inner waterfall (dsh-agent installModelSelection), while `agent.options` keeps the
+    // default model captured at Agent creation. The composed layer must follow the former.
+    harness.ctx.on('system-prompt/assemble', async (_assembly, _context, next) => {
+      const assembled = await next()
+      return { ...assembled, variables: { ...assembled.variables, provider: 'proxy-a', model: 'model-x' } }
+    })
+    const switched = fakeAgent('agent-switched', { options: { provider: 'proxy-a', model: 'model-y' } })
+    const assembly = await harness.ctx.systemPrompt.assemble({ agent: switched, scope: switched })
+    assert.ok(sectionNames(assembly).includes('custom:model-x-only'), sectionNames(assembly).join(' '))
+    assert.ok(!sectionNames(assembly).includes('custom:model-y-only'), sectionNames(assembly).join(' '))
+  } finally {
+    await harness.ctx.fiber.dispose()
+  }
+})
+
 test('managed native overrides need allowManagedOverride and are refused without it', { skip }, async () => {
   const refusedLayer = {
     'global.yaml': [

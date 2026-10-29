@@ -21,11 +21,17 @@ export const Config = z.object({
 })
 
 /**
- * Extract Agent identity, the declared route, and presentation-independent tool facts.
- * The declared route matches the host's `{{provider}}`/`{{model}}` variables. A later
- * agent/request override is not visible here; model layers therefore follow this route.
+ * Extract Agent identity, the route this assembly actually runs on, and
+ * presentation-independent tool facts.
+ *
+ * The route comes from the assembly's `provider`/`model` variables, read after
+ * `next()`: the Host's Session model selection overwrites them inside this
+ * waterfall, so they are what the rendered prompt and the follow-up request use.
+ * `agent.options` only keeps the default model captured when the Agent was
+ * created, which drifts from the Session route on every model switch, so it is
+ * the fallback for assemblies that declare no route.
  */
-export function assemblyFacts(ctx, context) {
+export function assemblyFacts(ctx, context, assembly) {
   const agent = context.agent
   if (!agent) return {}
   const header = agent.session?.header
@@ -36,13 +42,30 @@ export function assemblyFacts(ctx, context) {
     ? 'delegated' : header === undefined ? undefined : 'main'
   // The scoped pwsh tool is direct evidence that this Agent can execute PowerShell.
   const powershell = ctx.tools.get('pwsh', agent) !== undefined
+  const route = assemblyRoute(assembly, agent)
   return {
     preset: ctx.agentPresets.composedPreset(agent.ctx),
     role,
     powershell,
-    provider: agent.options?.provider,
-    model: agent.options?.model,
+    provider: route.provider,
+    model: route.model,
   }
+}
+
+/**
+ * Read the route this assembly is rendered for: the waterfall variables when the
+ * Host resolved a provider/model pair, otherwise the creation-time options.
+ * @param assembly - post-waterfall assembly whose variables carry the Session route.
+ * @param agent - the Agent being assembled.
+ * @returns the provider/model pair, possibly with undefined members.
+ */
+function assemblyRoute(assembly, agent) {
+  const provider = assembly?.variables?.provider
+  const model = assembly?.variables?.model
+  if (typeof provider === 'string' && provider.length > 0 && typeof model === 'string' && model.length > 0) {
+    return { provider, model }
+  }
+  return { provider: agent.options?.provider, model: agent.options?.model }
 }
 
 /** Mount one complete snapshot owner and release every observer on unload. */
@@ -95,7 +118,7 @@ export async function apply(ctx, config = {}) {
   }, () => ({
     modelLayers: true,
     powershell: ctx.tools.get('pwsh') === undefined ? 'unavailable' : 'available',
-    reason: 'Model layers follow the Agent declared provider/model; request-level route overrides are not observed',
+    reason: 'Model layers follow the provider/model the assembly is rendered for; a later agent/request override is not observed',
   }))
   const expected = new Map()
   let polling = false
@@ -108,7 +131,7 @@ export async function apply(ctx, config = {}) {
   ctx.on('system-prompt/assemble', async (_assembly, context, next) => {
     const assembly = await next()
     if (validating && !context.agent) return assembly
-    const result = runtime.assemble(assembly, assemblyFacts(ctx, context))
+    const result = runtime.assemble(assembly, assemblyFacts(ctx, context, assembly))
     if (context.agent && result !== assembly) {
       // Keep only hashes and IDs; no prompt bodies enter observation memory.
       const variables = result.variables

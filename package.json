@@ -1,6 +1,6 @@
 {
   "name": "dsh-prompt-layers",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "license": "MIT",
   "description": "Declarative system-prompt layers with explicit template import and shared YAML/Markdown editing.",
